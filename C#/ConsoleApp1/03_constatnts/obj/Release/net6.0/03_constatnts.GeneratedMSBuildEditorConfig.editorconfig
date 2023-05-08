@@ -7,5 +7,5 @@ build_property.InvariantGlobalization =
 build_property.PlatformNeutralAssembly = 
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
-build_property.RootNamespace = 01_intro
-build_property.ProjectDir = C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\01_Intro\
+build_property.RootNamespace = _03_constatnts
+build_property.ProjectDir = C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\03_constatnts\
