@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Mage\\source\\repos\\MagnusLii\\C_testing\\C#\\ConsoleApp1\\ConsoleApp1\\01_intro.csproj",
+      "projectUniqueName": "C:\\Users\\Mage\\source\\repos\\MagnusLii\\C_testing\\C#\\ConsoleApp1\\01_Intro\\01_intro.csproj",
       "projectName": "01_intro",
-      "projectPath": "C:\\Users\\Mage\\source\\repos\\MagnusLii\\C_testing\\C#\\ConsoleApp1\\ConsoleApp1\\01_intro.csproj",
+      "projectPath": "C:\\Users\\Mage\\source\\repos\\MagnusLii\\C_testing\\C#\\ConsoleApp1\\01_Intro\\01_intro.csproj",
       "packagesPath": "C:\\Users\\Mage\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Mage\\source\\repos\\MagnusLii\\C_testing\\C#\\ConsoleApp1\\ConsoleApp1\\obj\\",
+      "outputPath": "C:\\Users\\Mage\\source\\repos\\MagnusLii\\C_testing\\C#\\ConsoleApp1\\01_Intro\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "H:\\VisualStudioCommunityPacks\\components_tools_SDKs\\NuGetPackages"

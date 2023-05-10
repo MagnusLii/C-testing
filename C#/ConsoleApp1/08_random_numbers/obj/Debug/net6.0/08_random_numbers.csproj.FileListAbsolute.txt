@@ -1,0 +1,15 @@
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\bin\Debug\net6.0\08_random_numbers.exe
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\bin\Debug\net6.0\08_random_numbers.deps.json
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\bin\Debug\net6.0\08_random_numbers.runtimeconfig.json
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\bin\Debug\net6.0\08_random_numbers.dll
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\bin\Debug\net6.0\08_random_numbers.pdb
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\obj\Debug\net6.0\08_random_numbers.csproj.AssemblyReference.cache
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\obj\Debug\net6.0\08_random_numbers.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\obj\Debug\net6.0\08_random_numbers.AssemblyInfoInputs.cache
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\obj\Debug\net6.0\08_random_numbers.AssemblyInfo.cs
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\obj\Debug\net6.0\08_random_numbers.csproj.CoreCompileInputs.cache
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\obj\Debug\net6.0\08_random_numbers.dll
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\obj\Debug\net6.0\refint\08_random_numbers.dll
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\obj\Debug\net6.0\08_random_numbers.pdb
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\obj\Debug\net6.0\08_random_numbers.genruntimeconfig.cache
+C:\Users\Mage\source\repos\MagnusLii\C_testing\C#\ConsoleApp1\08_random_numbers\obj\Debug\net6.0\ref\08_random_numbers.dll
