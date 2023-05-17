@@ -17,7 +17,7 @@ int main(){
                              // 'fgets()' functions. Thus resulting in an empty variable. This 'fgets()' will read the '\n' from the buffer and get rid of it
                              // allowing us to accept user input in with the next 'fgets()'. This is a simply workaround.
 
-    printf("\nWhat is your full name?: ");
+    printf("What is your full name?: ");
     fgets(name, 25, stdin);  // 'fgets' works basically like 'scanf' however it can read whitespaces (spacebar) unlike 'scanf'.
                              // The arguments are name of the variable, input size, and stdin aka standard input.
                              // 'fgets' function includes a newline character at the end.
