@@ -8,7 +8,7 @@ int main(){
     const float PI = 3.14159;  // 'const' makes the value a constant. Constant names are traditionally in all caps.
 
     pi = 420.69;
-    //PI = 420.69;  // this throwns an error.
+    //PI = 420.69;  // this throws an error.
 
     printf("%f", pi);
     printf("%f", PI);
