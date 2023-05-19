@@ -11,5 +11,6 @@ int main(){
     printf("\nHello World!\n");
     printf("Followup line.");
 
-    return 0; // returns exit status of program, 0 if no errors occur. Only an errorchecking measure.
+    return 0;  // returns exit status of program, 0 if no errors occur. Only an errorchecking measure.
+               // More into: https://linuxhint.com/what-does-return-0-do-in-c/
 }
