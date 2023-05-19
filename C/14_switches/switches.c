@@ -13,7 +13,7 @@ int main(){
     {
     case 'A':  // if 'grade' == 'A'.
         printf("Perfect.");
-        break;
+        break;  // breaks are a must to exit out of the switch, otherwise the switch will loop through all the options.
     case 'B':
         printf("You did good.");
         break;
