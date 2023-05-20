@@ -1,5 +1,17 @@
 #include <stdio.h>
 
+int main(){
+
+    for (size_t i = 1; i < 4; i++)
+    {
+        text();
+    }
+    
+    return 0;
+}
+
+
+// functions are traditionally placed below main().
 
 void text(){
     printf("\nLorem ipsum dolor sit amet, consectetur adipiscing elit.\n"
@@ -9,14 +21,4 @@ void text(){
             "tempor quis risus ut, maximus auctor elit. Mauris ac molestie sem, ac tincidunt ante.\n"
             "Nullam ultricies, augue at lobortis tempus, sapien quam lobortis turpis,\n"
             "sit amet dictum leo erat a magna.\n");
-}
-
-int main(){
-
-    for (size_t i = 1; i < 4; i++)
-    {
-        text();
-    }
-    
-    return 0;
 }
