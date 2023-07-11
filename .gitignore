@@ -1,2 +1,21 @@
 
 *.exe
+*.v2
+*.vsidx
+*.lock
+*.1
+*.csproj
+*.json
+*.dll
+*.pdb
+*.props
+*.targets
+*.cache
+*.editorconfig
+*.BuildWithSkipAnalyzers
+*.txt
+*.AssemblyAttributes.cs
+*.AssemblyInfo.cs
+*.g.cs
+*.sln
+C\#/ConsoleApp1/.vs/ConsoleApp1/v17/.suo
