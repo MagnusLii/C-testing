@@ -12,7 +12,6 @@ int main()
     char* pDate_string = &date_string;
     int* pStudentind = &studentind;
 
-    // read number of students from first line of file.
     FILE *pFile = fopen("db.txt", "r");
     fscanf(pFile, "%d", &studentind);
     fclose(pFile);
@@ -38,18 +37,22 @@ int main()
     {
     case 1:
         add_student(pStudentind, &pDate_string);
+        goto start;
         break;
 
     case 2:
         printf("Edit student\n");
+        goto start;
         break;
 
     case 3:
         printf("Delete student\n");
+        goto start;
         break;
 
     case 4:
         printf("Search student\n");
+        goto start;
         break;
 
     case 5:
@@ -73,17 +76,18 @@ void add_student(int *studentind, char **date_string)
 {
 
     int major;
-    char firstname[20], lastname[20], buffer[20];
+    char firstname[20], lastname[20], buffer[20], student_number[7];
     char studentid[30] = "\0";
     char majors[4][20] = {"Biomimicry", "Puppet Arts", "Bicycle Design", "EcoGastronomy"};
     
-    FILE *pFile = fopen("db.txt", "a");
+    FILE *tmpFile = fopen("temp.tmp", "w");
+    FILE *pFile = fopen("db.txt", "r");
 
-    char student_number[7];
     (*studentind)++;
     
     sprintf(student_number, "%06d", *studentind);
 
+    // Gathering new student information.
     printf("\n\nCreating new student\n");
 
     printf("Enter firstname: ");
@@ -106,27 +110,34 @@ void add_student(int *studentind, char **date_string)
     strcat(studentid, *date_string);
     strcat(studentid, student_number);
 
-
-    switch (major)
+    // Creating temporary file to store data.
+    int count = 0;
+    while ((fgets(buffer, 255, pFile)) != NULL)
     {
-    case 1:
-        fprintf(pFile, "\n%s %s %s %s", firstname, lastname, studentid, majors[major]);
-        break;
-    case 2:
-        fprintf(pFile, "\n%s %s %s %s", firstname, lastname, studentid, majors[major]);
-        break;
-    case 3:
-        fprintf(pFile, "\n%s %s %s %s", firstname, lastname, studentid, majors[major]);
-        break;
-    case 4:
-        fprintf(pFile, "\n%s %s %s %s", firstname, lastname, studentid, majors[major]);
-        break;
-    
-    default: 
+        count++;
+        if (count == 1)
+            fprintf(tmpFile, "%d\n", *studentind);
+        else
+            fprintf(tmpFile, "%s", buffer);
+    }
+
+
+    // Creating new student entry.
+    if (major > 0 && major < 5)
+    {
+        fprintf(tmpFile, "\n%06d - %s %s %s %s", *studentind, firstname, lastname, studentid, majors[major - 1]);
+    }
+    else
+    {
         printf("Enter a valid choice\n");
         goto choose_major;
     }
 
     fclose(pFile);
-    // TODO Update studentind to db file.
+    fclose(tmpFile);
+
+    remove("db.txt");
+    rename("temp.tmp", "db.txt");
+
+    printf("Data updated.");
 }
