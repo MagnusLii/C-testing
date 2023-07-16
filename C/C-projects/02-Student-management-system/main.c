@@ -71,14 +71,14 @@ int main()
     char(*pDate_string)[20] = &date_string;
     int *pStudentind = &studentind, *pdb_entries = &db_entries;
 
-    FILE *pFile = fopen(DB, "r");
-    fscanf(pFile, "%d %d", &studentind, &db_entries); // First int is current index for students always incremented by one. Second int is number of current entries in DB.
-    fclose(pFile);
-
     time_t current_time = time(NULL);
     strftime(date_string, 20, "%Y%m", localtime(&current_time));
 
 start:
+
+    FILE *pFile = fopen(DB, "r");
+    fscanf(pFile, "%d %d", &studentind, &db_entries); // First int is current index for students always incremented by one. Second int is number of current entries in DB.
+    fclose(pFile);
 
     printf("\n\n----------------------------------------\n\n"
            "Student record management system\n\n"
@@ -126,9 +126,7 @@ start:
 
 fail:
     printf("Error");
-    goto end;
 end:
-    fclose(pFile);
     return 0;
 }
 
@@ -296,4 +294,26 @@ choose_revision:
 
     printf("Data updated.");
 exit:
+}
+
+void delete_student(int *db_entries)
+{
+    int studentind;
+    char buffer[255];
+
+    FILE *pFile = fopen(DB, "r");
+    FILE *tmpFile = fopen(TEMP, "w");
+
+    printf("Enter index number of student entry to remove: ");
+    scanf("%d", &studentind);
+
+    int count = 0;
+    while ((fgets(buffer, 255, pFile)) != NULL)
+    {
+        count++;
+        if (count == 1)
+            fprintf(tmpFile, "%d %d\n", *studentind, *db_entries);
+        else
+            fprintf(tmpFile, "%s", buffer);
+    }
 }
