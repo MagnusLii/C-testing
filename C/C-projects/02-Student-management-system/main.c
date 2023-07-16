@@ -5,6 +5,61 @@
 void add_student(int *studentind, char **date_string);
 void edit_student();
 
+struct Student
+{
+    int studentind;
+    char firstname[20], lastname[20], studentid[13], major[20];
+};
+
+typedef struct Student Struct;
+
+Struct fetch_student_data(int studentind)
+{
+    Struct student;
+    int tokencount = 0, linecount = 0;
+    char *token, buffer[255];
+    FILE *dbFile = fopen("db.txt", "r");
+
+    while ((fgets(buffer, 255, dbFile)) != NULL)
+    {
+        linecount++;
+        if (linecount == studentind + 2)
+        {
+            token = strtok(buffer, ", ");
+            while (token != NULL)
+            {
+                switch (tokencount)
+                {
+                case 0:
+                    student.studentind = atoi(token);
+                    break;
+                case 1:
+                    strncpy(student.firstname, token, sizeof(student.firstname) - 1);
+                    student.firstname[sizeof(student.firstname) - 1] = '\0';
+                    break;
+                case 2:
+                    strncpy(student.lastname, token, sizeof(student.lastname) - 1);
+                    student.lastname[sizeof(student.lastname) - 1] = '\0';
+                    break;
+                case 3:
+                    strncpy(student.studentid, token, sizeof(student.studentid) - 1);
+                    student.studentid[sizeof(student.studentid) - 1] = '\0';
+                    break;
+                case 4:
+                    strncpy(student.major, token, sizeof(student.major) - 1);
+                    student.major[sizeof(student.major) - 1] = '\0';
+                    break;
+                }
+
+                token = strtok(NULL, ", ");
+                tokencount++;
+            }
+        }
+    }
+    fclose(dbFile);
+    return student;
+}
+
 int main()
 {
     int choice, studentind;
@@ -78,7 +133,7 @@ void add_student(int *studentind, char **date_string)
 
     int major;
     char firstname[20], lastname[20], buffer[255], student_number[7];
-    char studentid[30] = "\0";
+    char studentid[13] = "\0";
     char majors[4][20] = {"Biomimicry", "Puppet Arts", "Bicycle Design", "EcoGastronomy"};
 
     FILE *tmpFile = fopen("temp.tmp", "w");
@@ -147,57 +202,21 @@ choose_major:
 
 void edit_student()
 {
-    int studentind, revisionInd, major;
+    int studentind, data_to_change, major;
     char firstname[20], lastname[20], buffer[255], studentid[13], current_major[20];
     char majors[4][20] = {"Biomimicry", "Puppet Arts", "BicycleDesign", "EcoGastronomy"};
     char *token;
 
     FILE *tmpFile = fopen("temp.tmp", "w");
     FILE *pFile = fopen("db.txt", "r");
-    FILE *pFile2 = fopen("db.txt", "r");
 
     // Gathering current student information.
     printf("\n\n----------------------------------------\n\n"
            "Enter student index number: ");
     scanf("%d", &studentind);
 
-    int tokencount = 0, linecount = 0;
-    while ((fgets(buffer, 255, pFile2)) != NULL)
-    {
-        linecount++;
-        if (linecount == studentind + 2)
-        {
-            token = strtok(buffer, ", ");
-            while (token != NULL)
-            {
-                switch (tokencount)
-                {
-                case 0:
-                    studentind = atoi(token);
-                    break;
-                case 1:
-                    strncpy(firstname, token, sizeof(firstname) - 1);
-                    firstname[sizeof(firstname) - 1] = '\0';
-                    break;
-                case 2:
-                    strncpy(lastname, token, sizeof(lastname) - 1);
-                    lastname[sizeof(lastname) - 1] = '\0';
-                    break;
-                case 3:
-                    strncpy(studentid, token, sizeof(studentid) - 1);
-                    studentid[sizeof(studentid) - 1] = '\0';
-                    break;
-                case 4:
-                    strncpy(current_major, token, sizeof(current_major) - 1);
-                    current_major[sizeof(current_major) - 1] = '\0';
-                    break;
-                }
-
-                token = strtok(NULL, ", ");
-                tokencount++;
-            }
-        }
-    }
+    // Fetching student data is now done via struct.
+    struct Student student_data = fetch_student_data(studentind);
 
 choose_revision:
     printf("\n\n----------------------------------------\n\n"
@@ -206,20 +225,20 @@ choose_revision:
            "3. major\n"
            "4. Exit\n"
            "Choose data to change: ");
-    scanf("%d", &revisionInd);
+    scanf("%d", &data_to_change);
     fgets(buffer, 255, stdin);
 
-    switch (revisionInd)
+    switch (data_to_change)
     {
     case 1:
         printf("Enter new firstname: ");
-        fgets(firstname, 20, stdin);
-        firstname[strlen(firstname) - 1] = '\0';
+        fgets(student_data.firstname, 20, stdin);
+        student_data.firstname[strlen(student_data.firstname) - 1] = '\0';
         break;
     case 2:
         printf("Enter new lastname: ");
-        fgets(lastname, 20, stdin);
-        lastname[strlen(lastname) - 1] = '\0';
+        fgets(student_data.lastname, 20, stdin);
+        student_data.lastname[strlen(student_data.lastname) - 1] = '\0';
         break;
     case 3:
         printf(
@@ -232,7 +251,7 @@ choose_revision:
         scanf("%d", &major);
         if (major > 0 && major < 5)
         {
-            strcpy(current_major, majors[major - 1]);
+            strcpy(student_data.major, majors[major - 1]);
         }
         else
         {
@@ -255,7 +274,7 @@ choose_revision:
         count++;
         if (count == studentind + 2)
         {
-            fprintf(tmpFile, "%d, %s, %s, %s, %s\n", studentind, firstname, lastname, studentid, current_major);
+            fprintf(tmpFile, "%d, %s, %s, %s, %s", student_data.studentind, student_data.firstname, student_data.lastname, student_data.studentid, student_data.major);
         }
         else
         {
@@ -265,7 +284,6 @@ choose_revision:
 
     fclose(pFile);
     fclose(tmpFile);
-    fclose(pFile2);
 
     // Updating database.
     remove("db.txt");
@@ -273,9 +291,4 @@ choose_revision:
 
     printf("Data updated.");
 exit:
-}
-
-void tempname()
-{
-    
 }
