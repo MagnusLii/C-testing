@@ -148,18 +148,56 @@ choose_major:
 void edit_student()
 {
     int studentind, revisionInd, major;
-    char firstname[20], lastname[20], buffer[255], student_number[7], current_major[20];
-    char majors[4][20] = {"Biomimicry", "Puppet Arts", "Bicycle Design", "EcoGastronomy"};
+    char firstname[20], lastname[20], buffer[255], studentid[13], current_major[20];
+    char majors[4][20] = {"Biomimicry", "Puppet Arts", "BicycleDesign", "EcoGastronomy"};
+    char *token;
 
     FILE *tmpFile = fopen("temp.tmp", "w");
     FILE *pFile = fopen("db.txt", "r");
+    FILE *pFile2 = fopen("db.txt", "r");
 
-    // Gathering information about student to edit.
+    // Gathering current student information.
     printf("\n\n----------------------------------------\n\n"
            "Enter student index number: ");
     scanf("%d", &studentind);
 
-    // TODO: Read current student information.
+    int tokencount = 0, linecount = 0;
+    while ((fgets(buffer, 255, pFile2)) != NULL)
+    {
+        linecount++;
+        if (linecount == studentind + 2)
+        {
+            token = strtok(buffer, ", ");
+            while (token != NULL)
+            {
+                switch (tokencount)
+                {
+                case 0:
+                    studentind = atoi(token);
+                    break;
+                case 1:
+                    strncpy(firstname, token, sizeof(firstname) - 1);
+                    firstname[sizeof(firstname) - 1] = '\0';
+                    break;
+                case 2:
+                    strncpy(lastname, token, sizeof(lastname) - 1);
+                    lastname[sizeof(lastname) - 1] = '\0';
+                    break;
+                case 3:
+                    strncpy(studentid, token, sizeof(studentid) - 1);
+                    studentid[sizeof(studentid) - 1] = '\0';
+                    break;
+                case 4:
+                    strncpy(current_major, token, sizeof(current_major) - 1);
+                    current_major[sizeof(current_major) - 1] = '\0';
+                    break;
+                }
+
+                token = strtok(NULL, ", ");
+                tokencount++;
+            }
+        }
+    }
 
 choose_revision:
     printf("\n\n----------------------------------------\n\n"
@@ -201,7 +239,9 @@ choose_revision:
             printf("Enter a valid choice\n");
             goto choose_revision;
         }
-
+        break;
+    case 4:
+        goto exit;
         break;
     default:
         printf("Enter a valid choice\n");
@@ -215,7 +255,7 @@ choose_revision:
         count++;
         if (count == studentind + 2)
         {
-            fprintf(tmpFile, "\n%d, %s, %s, %s, %s", studentind, firstname, lastname, student_number, current_major);
+            fprintf(tmpFile, "%d, %s, %s, %s, %s\n", studentind, firstname, lastname, studentid, current_major);
         }
         else
         {
@@ -225,6 +265,7 @@ choose_revision:
 
     fclose(pFile);
     fclose(tmpFile);
+    fclose(pFile2);
 
     // Updating database.
     remove("db.txt");
@@ -232,4 +273,9 @@ choose_revision:
 
     printf("Data updated.");
 exit:
+}
+
+void tempname()
+{
+    
 }
