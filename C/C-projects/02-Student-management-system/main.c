@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include <stdlib.h>
 
-void add_student(int *studentind, char **date_string);
+void add_student(int *studentind, char (*date_string)[20], int *db_entries);
 void edit_student();
 
 #define DB "db.txt"
@@ -65,13 +66,13 @@ Struct fetch_student_data(int studentind)
 
 int main()
 {
-    int choice, studentind;
+    int choice, studentind, db_entries;
     char date_string[20], buffer[20];
-    char *pDate_string = &date_string;
-    int *pStudentind = &studentind;
+    char(*pDate_string)[20] = &date_string;
+    int *pStudentind = &studentind, *pdb_entries = &db_entries;
 
     FILE *pFile = fopen(DB, "r");
-    fscanf(pFile, "%d", &studentind);
+    fscanf(pFile, "%d %d", &studentind, &db_entries); // First int is current index for students always incremented by one. Second int is number of current entries in DB.
     fclose(pFile);
 
     time_t current_time = time(NULL);
@@ -95,7 +96,7 @@ start:
     switch (choice)
     {
     case 1:
-        add_student(pStudentind, &pDate_string);
+        add_student(pStudentind, pDate_string, pdb_entries);
         goto start;
         break;
 
@@ -131,7 +132,7 @@ end:
     return 0;
 }
 
-void add_student(int *studentind, char **date_string)
+void add_student(int *studentind, char (*date_string)[20], int *db_entries)
 {
 
     int major;
@@ -139,10 +140,11 @@ void add_student(int *studentind, char **date_string)
     char studentid[13] = "\0";
     char majors[4][20] = {"Biomimicry", "Puppet Arts", "Bicycle Design", "EcoGastronomy"};
 
-    FILE *tmpFile = fopen(DB, "w");
+    FILE *tmpFile = fopen(TEMP, "w");
     FILE *pFile = fopen(DB, "r");
 
     (*studentind)++;
+    (*db_entries)++;
 
     sprintf(student_number, "%06d", *studentind);
 
@@ -177,7 +179,7 @@ choose_major:
     {
         count++;
         if (count == 1)
-            fprintf(tmpFile, "%d\n", *studentind);
+            fprintf(tmpFile, "%d %d\n", *studentind, *db_entries);
         else
             fprintf(tmpFile, "%s", buffer);
     }
@@ -198,7 +200,7 @@ choose_major:
 
     // Updating database.
     remove(DB);
-    rename(DB, DB);
+    rename(TEMP, DB);
 
     printf("Data updated.");
 }

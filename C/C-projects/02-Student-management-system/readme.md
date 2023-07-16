@@ -6,3 +6,12 @@ It will include the following:
 -Ability to add/remove students from the record.
 -Ability to modify existing records.
 -Ability to search existing records.
+
+
+DB layout:
+
+(current student index number) (current DB entries tracking number)
+(layout desc) == Entrynum, Firstname, Lastname, Studentid, Major
+(first entry)
+(second entry)
+...
