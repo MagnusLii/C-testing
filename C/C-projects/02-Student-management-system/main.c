@@ -2,15 +2,15 @@
 #include <time.h>
 #include <string.h>
 
-
 void add_student(int *studentind, char **date_string);
+void edit_student();
 
 int main()
 {
     int choice, studentind;
     char date_string[20], buffer[20];
-    char* pDate_string = &date_string;
-    int* pStudentind = &studentind;
+    char *pDate_string = &date_string;
+    int *pStudentind = &studentind;
 
     FILE *pFile = fopen("db.txt", "r");
     fscanf(pFile, "%d", &studentind);
@@ -19,16 +19,17 @@ int main()
     time_t current_time = time(NULL);
     strftime(date_string, 20, "%Y%m", localtime(&current_time));
 
-    start:
+start:
 
-    printf("Student record management system\n\n"
-            "Menu:\n"
-            "1. Add new student\n"
-            "2. Edit student\n"
-            "3. Delete student\n"
-            "4. Search student\n"
-            "5. Exit\n"
-            "Enter your choice: ");
+    printf("\n\n----------------------------------------\n\n"
+           "Student record management system\n\n"
+           "Menu:\n"
+           "1. Add new student\n"
+           "2. Edit student\n"
+           "3. Delete student\n"
+           "4. Search student\n"
+           "5. Exit\n"
+           "Enter your choice: ");
 
     scanf("%d", &choice);
     fgets(buffer, 20, stdin);
@@ -41,7 +42,7 @@ int main()
         break;
 
     case 2:
-        printf("Edit student\n");
+        edit_student();
         goto start;
         break;
 
@@ -56,61 +57,63 @@ int main()
         break;
 
     case 5:
-        printf("Exit\n");
+        printf("Exiting program\n");
         goto end;
         break;
 
-    default: goto fail;
+    default:
+        goto fail;
     }
 
-    fail:
-        printf("Error");
-        goto end;
-    end:
-        fclose(pFile);
-        return 0;
+fail:
+    printf("Error");
+    goto end;
+end:
+    fclose(pFile);
+    return 0;
 }
-
 
 void add_student(int *studentind, char **date_string)
 {
 
     int major;
-    char firstname[20], lastname[20], buffer[20], student_number[7];
+    char firstname[20], lastname[20], buffer[255], student_number[7];
     char studentid[30] = "\0";
     char majors[4][20] = {"Biomimicry", "Puppet Arts", "Bicycle Design", "EcoGastronomy"};
-    
+
     FILE *tmpFile = fopen("temp.tmp", "w");
     FILE *pFile = fopen("db.txt", "r");
 
     (*studentind)++;
-    
+
     sprintf(student_number, "%06d", *studentind);
 
     // Gathering new student information.
-    printf("\n\nCreating new student\n");
+    printf("\n\n----------------------------------------\n\n"
+           "Creating new student\n");
 
     printf("Enter firstname: ");
     fgets(firstname, 20, stdin);
-    firstname[strlen(firstname)-1] = '\0';
-    
+    firstname[strlen(firstname) - 1] = '\0';
+
     printf("Enter lastname: ");
     fgets(lastname, 20, stdin);
-    lastname[strlen(lastname)-1] = '\0';
+    lastname[strlen(lastname) - 1] = '\0';
 
-    choose_major:
-    printf("\n\nSet student major\n"
-            "1. Biomimicry\n"
-            "2. Puppet Arts\n"
-            "3. Bicycle Design\n"
-            "4. EcoGastronomy\n"
-            "Enter choice: ");
+choose_major:
+    printf("\n\n----------------------------------------\n\n"
+           "Set student major\n"
+           "1. Biomimicry\n"
+           "2. Puppet Arts\n"
+           "3. Bicycle Design\n"
+           "4. EcoGastronomy\n"
+           "Enter choice: ");
     scanf("%d", &major);
 
     strcat(studentid, *date_string);
     strcat(studentid, student_number);
 
-    // Creating temporary file to store data.
+    // Filling temporary file to store updated data.
     int count = 0;
     while ((fgets(buffer, 255, pFile)) != NULL)
     {
@@ -121,11 +124,10 @@ void add_student(int *studentind, char **date_string)
             fprintf(tmpFile, "%s", buffer);
     }
 
-
     // Creating new student entry.
     if (major > 0 && major < 5)
     {
-        fprintf(tmpFile, "\n%06d - %s %s %s %s", *studentind, firstname, lastname, studentid, majors[major - 1]);
+        fprintf(tmpFile, "\n%d, %s, %s, %s, %s", *studentind, firstname, lastname, studentid, majors[major - 1]);
     }
     else
     {
@@ -136,8 +138,98 @@ void add_student(int *studentind, char **date_string)
     fclose(pFile);
     fclose(tmpFile);
 
+    // Updating database.
     remove("db.txt");
     rename("temp.tmp", "db.txt");
 
     printf("Data updated.");
+}
+
+void edit_student()
+{
+    int studentind, revisionInd, major;
+    char firstname[20], lastname[20], buffer[255], student_number[7], current_major[20];
+    char majors[4][20] = {"Biomimicry", "Puppet Arts", "Bicycle Design", "EcoGastronomy"};
+
+    FILE *tmpFile = fopen("temp.tmp", "w");
+    FILE *pFile = fopen("db.txt", "r");
+
+    // Gathering information about student to edit.
+    printf("\n\n----------------------------------------\n\n"
+           "Enter student index number: ");
+    scanf("%d", &studentind);
+
+    // TODO: Read current student information.
+
+choose_revision:
+    printf("\n\n----------------------------------------\n\n"
+           "1. Firstname\n"
+           "2. Lastname\n"
+           "3. major\n"
+           "4. Exit\n"
+           "Choose data to change: ");
+    scanf("%d", &revisionInd);
+    fgets(buffer, 255, stdin);
+
+    switch (revisionInd)
+    {
+    case 1:
+        printf("Enter new firstname: ");
+        fgets(firstname, 20, stdin);
+        firstname[strlen(firstname) - 1] = '\0';
+        break;
+    case 2:
+        printf("Enter new lastname: ");
+        fgets(lastname, 20, stdin);
+        lastname[strlen(lastname) - 1] = '\0';
+        break;
+    case 3:
+        printf(
+            "\n\nSet student major\n"
+            "1. Biomimicry\n"
+            "2. Puppet Arts\n"
+            "3. Bicycle Design\n"
+            "4. EcoGastronomy\n"
+            "Enter choice: ");
+        scanf("%d", &major);
+        if (major > 0 && major < 5)
+        {
+            strcpy(current_major, majors[major - 1]);
+        }
+        else
+        {
+            printf("Enter a valid choice\n");
+            goto choose_revision;
+        }
+
+        break;
+    default:
+        printf("Enter a valid choice\n");
+        goto choose_revision;
+    }
+
+    // Filling temporary file to store updated data.
+    int count = 0;
+    while ((fgets(buffer, 255, pFile)) != NULL)
+    {
+        count++;
+        if (count == studentind + 2)
+        {
+            fprintf(tmpFile, "\n%d, %s, %s, %s, %s", studentind, firstname, lastname, student_number, current_major);
+        }
+        else
+        {
+            fprintf(tmpFile, "%s", buffer);
+        }
+    }
+
+    fclose(pFile);
+    fclose(tmpFile);
+
+    // Updating database.
+    remove("db.txt");
+    rename("temp.tmp", "db.txt");
+
+    printf("Data updated.");
+exit:
 }
