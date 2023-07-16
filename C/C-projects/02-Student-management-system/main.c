@@ -96,6 +96,7 @@ start:
         strftime(date_string, 20, "%Y%m", localtime(&current_time));
 
         add_student(pStudentind, &pDate_string);
+        fclose(pFile);
         goto start;
         break;
 
@@ -127,7 +128,6 @@ fail:
     printf("Error");
     goto end;
 end:
-    fclose(pFile);
     return 0;
 }
 
