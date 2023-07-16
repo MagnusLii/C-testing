@@ -70,6 +70,13 @@ int main()
     char *pDate_string = &date_string;
     int *pStudentind = &studentind;
 
+    FILE *pFile = fopen(DB, "r");
+    fscanf(pFile, "%d", &studentind);
+    fclose(pFile);
+
+    time_t current_time = time(NULL);
+    strftime(date_string, 20, "%Y%m", localtime(&current_time));
+
 start:
 
     printf("\n\n----------------------------------------\n\n"
@@ -88,15 +95,7 @@ start:
     switch (choice)
     {
     case 1:
-        FILE *pFile = fopen(DB, "r");
-        fscanf(pFile, "%d", &studentind);
-        fclose(pFile);
-
-        time_t current_time = time(NULL);
-        strftime(date_string, 20, "%Y%m", localtime(&current_time));
-
         add_student(pStudentind, &pDate_string);
-        fclose(pFile);
         goto start;
         break;
 
@@ -128,6 +127,7 @@ fail:
     printf("Error");
     goto end;
 end:
+    fclose(pFile);
     return 0;
 }
 
