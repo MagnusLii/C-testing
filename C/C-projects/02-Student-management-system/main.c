@@ -5,6 +5,9 @@
 void add_student(int *studentind, char **date_string);
 void edit_student();
 
+#define DB "db.txt"
+#define TEMP "temp.tmp"
+
 struct Student
 {
     int studentind;
@@ -18,7 +21,7 @@ Struct fetch_student_data(int studentind)
     Struct student;
     int tokencount = 0, linecount = 0;
     char *token, buffer[255];
-    FILE *dbFile = fopen("db.txt", "r");
+    FILE *dbFile = fopen(DB, "r");
 
     while ((fgets(buffer, 255, dbFile)) != NULL)
     {
@@ -67,13 +70,6 @@ int main()
     char *pDate_string = &date_string;
     int *pStudentind = &studentind;
 
-    FILE *pFile = fopen("db.txt", "r");
-    fscanf(pFile, "%d", &studentind);
-    fclose(pFile);
-
-    time_t current_time = time(NULL);
-    strftime(date_string, 20, "%Y%m", localtime(&current_time));
-
 start:
 
     printf("\n\n----------------------------------------\n\n"
@@ -92,6 +88,13 @@ start:
     switch (choice)
     {
     case 1:
+        FILE *pFile = fopen(DB, "r");
+        fscanf(pFile, "%d", &studentind);
+        fclose(pFile);
+
+        time_t current_time = time(NULL);
+        strftime(date_string, 20, "%Y%m", localtime(&current_time));
+
         add_student(pStudentind, &pDate_string);
         goto start;
         break;
@@ -136,8 +139,8 @@ void add_student(int *studentind, char **date_string)
     char studentid[13] = "\0";
     char majors[4][20] = {"Biomimicry", "Puppet Arts", "Bicycle Design", "EcoGastronomy"};
 
-    FILE *tmpFile = fopen("temp.tmp", "w");
-    FILE *pFile = fopen("db.txt", "r");
+    FILE *tmpFile = fopen(DB, "w");
+    FILE *pFile = fopen(DB, "r");
 
     (*studentind)++;
 
@@ -194,8 +197,8 @@ choose_major:
     fclose(tmpFile);
 
     // Updating database.
-    remove("db.txt");
-    rename("temp.tmp", "db.txt");
+    remove(DB);
+    rename(DB, DB);
 
     printf("Data updated.");
 }
@@ -207,8 +210,8 @@ void edit_student()
     char majors[4][20] = {"Biomimicry", "Puppet Arts", "BicycleDesign", "EcoGastronomy"};
     char *token;
 
-    FILE *tmpFile = fopen("temp.tmp", "w");
-    FILE *pFile = fopen("db.txt", "r");
+    FILE *tmpFile = fopen(TEMP, "w");
+    FILE *pFile = fopen(DB, "r");
 
     // Gathering current student information.
     printf("\n\n----------------------------------------\n\n"
@@ -286,8 +289,8 @@ choose_revision:
     fclose(tmpFile);
 
     // Updating database.
-    remove("db.txt");
-    rename("temp.tmp", "db.txt");
+    remove(DB);
+    rename(TEMP, DB);
 
     printf("Data updated.");
 exit:
