@@ -5,6 +5,8 @@
 
 void add_student(int *studentind, char (*date_string)[20], int *db_entries);
 void edit_student();
+void delete_student(int *db_entries);
+int get_ind_num(char buffer[255]);
 
 #define DB "db.txt"
 #define TEMP "temp.tmp"
