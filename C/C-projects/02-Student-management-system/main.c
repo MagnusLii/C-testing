@@ -67,7 +67,7 @@ Struct fetch_student_data(int studentind)
 
     printf("fetch_student_data() - entry not found\n");
 
-    entry_found:
+entry_found:
     fclose(dbFile);
     return student;
 }
@@ -75,7 +75,7 @@ Struct fetch_student_data(int studentind)
 int main()
 {
     int choice, studentind, db_entries;
-    char date_string[20], buffer[20];
+    char date_string[20], buffer[20], choice_str[9];
     char(*pDate_string)[20] = &date_string;
     int *pStudentind = &studentind, *pdb_entries = &db_entries;
 
@@ -98,8 +98,9 @@ start:
            "5. Exit\n"
            "Enter your choice: ");
 
-    scanf("%d", &choice);
-    fgets(buffer, 20, stdin);
+    fgets(choice_str, 9, stdin);
+    choice_str[strcspn(choice_str, "\n")] = '\0';
+    choice = atoi(choice_str);
 
     switch (choice)
     {
@@ -142,7 +143,7 @@ void add_student(int *studentind, char (*date_string)[20], int *db_entries)
 {
 
     int major;
-    char firstname[20], lastname[20], buffer[255], student_number[7];
+    char firstname[20], lastname[20], buffer[255], student_number[7], major_str[9];
     char studentid[13] = "\0";
     char majors[4][20] = {"Biomimicry", "Puppet Arts", "Bicycle Design", "EcoGastronomy"};
 
@@ -174,7 +175,10 @@ choose_major:
            "3. Bicycle Design\n"
            "4. EcoGastronomy\n"
            "Enter choice: ");
-    scanf("%d", &major);
+
+    fgets(major_str, 9, stdin);
+    major_str[strcspn(major_str, "\n")] = '\0';
+    major = atoi(major_str);
 
     strcat(studentid, *date_string);
     strcat(studentid, student_number);
@@ -214,7 +218,7 @@ choose_major:
 void edit_student()
 {
     int studentind, data_to_change, major;
-    char firstname[20], lastname[20], buffer[255], studentid[13], current_major[20];
+    char firstname[20], lastname[20], buffer[255], studentid[13], current_major[20], studentind_str[9], data_to_change_str[9], major_str[9];
     char majors[4][20] = {"Biomimicry", "Puppet Arts", "BicycleDesign", "EcoGastronomy"};
     char *token;
 
@@ -224,7 +228,10 @@ void edit_student()
     // Gathering current student information.
     printf("\n\n----------------------------------------\n\n"
            "Enter student index number: ");
-    scanf("%d", &studentind);
+
+    fgets(studentind_str, 9, stdin);
+    studentind_str[strcspn(studentind_str, "\n")] = '\0';
+    studentind = atoi(studentind_str);
 
     // Fetching student data is now done via struct.
     struct Student student_data = fetch_student_data(studentind);
@@ -236,8 +243,10 @@ choose_revision:
            "3. major\n"
            "4. Exit\n"
            "Choose data to change: ");
-    scanf("%d", &data_to_change);
-    fgets(buffer, 255, stdin);
+
+    fgets(data_to_change_str, 9, stdin);
+    data_to_change_str[strcspn(data_to_change_str, "\n")] = '\0';
+    data_to_change = atoi(data_to_change_str);
 
     switch (data_to_change)
     {
@@ -259,7 +268,11 @@ choose_revision:
             "3. Bicycle Design\n"
             "4. EcoGastronomy\n"
             "Enter choice: ");
-        scanf("%d", &major);
+
+        fgets(major_str, 9, stdin);
+        major_str[strcspn(major_str, "\n")] = '\0';
+        major = atoi(major_str);
+
         if (major > 0 && major < 5)
         {
             strcpy(student_data.major, majors[major - 1]);
@@ -307,18 +320,25 @@ exit:
 void delete_student(int *db_entries)
 {
     int studentind;
-    char buffer[255], studentnumber[8];
+    char buffer[255], studentnumber[8], studentind_str[9];
+    int count = 1, current_index, db_rows;
 
     FILE *pFile = fopen(DB, "r");
     FILE *tmpFile = fopen(TEMP, "w");
 
     printf("\n\n----------------------------------------\n\n"
            "Enter index number of student entry to remove: ");
-    scanf("%d", &studentind);
+
+    fgets(studentind_str, 9, stdin);
+    studentind_str[strcspn(studentind_str, "\n")] = '\0';
+    studentind = atoi(studentind_str);
 
     struct Student student_data = fetch_student_data(studentind);
 
-    int count = 1;
+    fgets(buffer, 255, pFile);
+    fscanf("%d %d", &current_index, &db_rows);
+    fprintf(tmpFile, "%d %d\n", current_index, db_rows - 1);
+
     while ((fgets(buffer, 255, pFile)) != NULL)
     {
         if (count == student_data.db_entry_row)
@@ -347,11 +367,10 @@ int get_ind_num(char buffer[255])
     {
         if (buffer[i] == ',')
         {
-            goto numberfound;
+            break;
         }
         index_number[numberlength] = buffer[i];
         numberlength++;
     }
-numberfound:
     return atoi(index_number);
 }
