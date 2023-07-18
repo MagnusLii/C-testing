@@ -11,7 +11,7 @@ void edit_student();
 
 struct Student
 {
-    int studentind;
+    int studentind, db_entry_row;
     char firstname[20], lastname[20], studentid[13], major[20];
 };
 
@@ -27,7 +27,7 @@ Struct fetch_student_data(int studentind)
     while ((fgets(buffer, 255, dbFile)) != NULL)
     {
         linecount++;
-        if (linecount == studentind + 2)
+        if (get_ind_num(buffer) == studentind)
         {
             token = strtok(buffer, ", ");
             while (token != NULL)
@@ -58,8 +58,14 @@ Struct fetch_student_data(int studentind)
                 token = strtok(NULL, ", ");
                 tokencount++;
             }
+            student.db_entry_row = linecount;
+            goto entry_found;
         }
     }
+
+    printf("fetch_student_data() - entry not found\n");
+
+    entry_found:
     fclose(dbFile);
     return student;
 }
@@ -106,7 +112,7 @@ start:
         break;
 
     case 3:
-        printf("Delete student\n");
+        delete_student(pdb_entries);
         goto start;
         break;
 
@@ -275,7 +281,7 @@ choose_revision:
     while ((fgets(buffer, 255, pFile)) != NULL)
     {
         count++;
-        if (count == studentind + 2)
+        if (count == student_data.db_entry_row)
         {
             fprintf(tmpFile, "%d, %s, %s, %s, %s", student_data.studentind, student_data.firstname, student_data.lastname, student_data.studentid, student_data.major);
         }
@@ -299,21 +305,51 @@ exit:
 void delete_student(int *db_entries)
 {
     int studentind;
-    char buffer[255];
+    char buffer[255], studentnumber[8];
 
     FILE *pFile = fopen(DB, "r");
     FILE *tmpFile = fopen(TEMP, "w");
 
-    printf("Enter index number of student entry to remove: ");
+    printf("\n\n----------------------------------------\n\n"
+           "Enter index number of student entry to remove: ");
     scanf("%d", &studentind);
 
-    int count = 0;
+    struct Student student_data = fetch_student_data(studentind);
+
+    int count = 1;
     while ((fgets(buffer, 255, pFile)) != NULL)
     {
-        count++;
-        if (count == 1)
-            fprintf(tmpFile, "%d %d\n", *studentind, *db_entries);
+        if (count == student_data.db_entry_row)
+        {
+            printf("Student entry removed.\n");
+        }
         else
+        {
             fprintf(tmpFile, "%s", buffer);
+        }
+        count++;
     }
+
+    fclose(pFile);
+    fclose(tmpFile);
+
+    remove(DB);
+    rename(TEMP, DB);
+}
+
+int get_ind_num(char buffer[255])
+{
+    char index_number[8];
+    int numberlength = 0;
+    for (int i = 0; i < strlen(buffer); i++)
+    {
+        if (buffer[i] == ',')
+        {
+            goto numberfound;
+        }
+        index_number[numberlength] = buffer[i];
+        numberlength++;
+    }
+numberfound:
+    return atoi(index_number);
 }
