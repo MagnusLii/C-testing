@@ -379,7 +379,7 @@ int get_ind_num(char buffer[255])
 void show_student_list(int *studentind, int *db_entries)
 {
     int linecount;
-    char buffer[255], cont, na[2];
+    char buffer[255], cont, na[5];
 
     FILE *pFile = fopen(DB, "r");
 
@@ -394,14 +394,14 @@ listprint:
 
     while ((fgets(buffer, 255, pFile)) != NULL)
     {
-        printf("%s", buffer);
+        printf("%d: %s", linecount + 1, buffer);
         linecount++;
 
         if (((linecount + 1) % 10) == 0)
         {
         inputerror:
             printf("\nContinue? (y/n): ");
-            fgets(na, 2, stdin);
+            fgets(na, 5, stdin);
             cont = fgetc(stdin);
 
             if (cont == 'y')
@@ -426,17 +426,19 @@ exit:
 
 void lookup_student()
 {
-    char buffer[255], choice_str[2], search_string[50], lookup_results[100][255], continue_lookup[2];
+    char buffer[255], choice_str[5], search_string[50], lookup_results[100][255], continue_lookup[5];
     int choice;
-    FILE *pFile = fopen(DB, "r");
 
 lookup_start:
+    FILE *pFile = fopen(DB, "r");
+
     printf("\n\n----------------------------------------\n\n"
            "1. Search by student ID\n"
            "2. Search by student name\n"
-           "3. Exit\n");
+           "3. Exit\n"
+           "Enter choice: ");
 
-    fgets(choice_str, 2, stdin);
+    fgets(choice_str, 5, stdin);
     choice_str[strcspn(choice_str, "\n")] = '\0';
     choice = atoi(choice_str);
 
@@ -473,19 +475,21 @@ lookup_start:
 
     printf("\n\n----------------------------------------\n\n"
            "%d matching entries found\n\n",
-           matching_entries + 1);
+           matching_entries);
 
-    for (int i = 0; i <= matching_entries; i++)
+    for (int i = 0; i < matching_entries; i++)
     {
-        printf("%d: %s", matching_entries + 1, lookup_results[i]);
+        printf("%d: %s", i + 1, lookup_results[i]);
     }
 
 continue_lookup:
     printf("\n\n----------------------------------------\n\n"
            "perform another search? (y/n): ");
-    fgets(continue_lookup, 2, stdin);
+    fgets(continue_lookup, 5, stdin);
     continue_lookup[strcspn(continue_lookup, "\n")] = '\0';
 
+    fclose(pFile);
+    
     if (strcmp(continue_lookup, "y") == 0)
     {
         goto lookup_start;
@@ -506,7 +510,7 @@ exit:
 void lookup_or_browse(int *studentind, int *db_entries)
 {
     int choice;
-    char choice_str[2];
+    char choice_str[5];
 
 lookup_or_browse_start:
     printf("\n\n----------------------------------------\n\n"
@@ -515,7 +519,7 @@ lookup_or_browse_start:
            "3. Exit\n"
            "Enter choice: ");
 
-    fgets(choice_str, 2, stdin);
+    fgets(choice_str, 5, stdin);
     choice_str[strcspn(choice_str, "\n")] = '\0';
     choice = atoi(choice_str);
 
