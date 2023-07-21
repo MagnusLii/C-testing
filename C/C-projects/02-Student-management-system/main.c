@@ -7,6 +7,8 @@ void add_student(int *studentind, char (*date_string)[20], int *db_entries);
 void edit_student();
 void delete_student(int *db_entries);
 int get_ind_num(char buffer[255]);
+void show_student_list(int *studentind, int *db_entries);
+void lookup_or_browse(int *studentind, int *db_entries);
 
 #define DB "db.txt"
 #define TEMP "temp.tmp"
@@ -120,7 +122,7 @@ start:
         break;
 
     case 4:
-        printf("Search student\n");
+        lookup_or_browse(pStudentind, pdb_entries);
         goto start;
         break;
 
@@ -145,7 +147,7 @@ void add_student(int *studentind, char (*date_string)[20], int *db_entries)
     int major;
     char firstname[20], lastname[20], buffer[255], student_number[7], major_str[9];
     char studentid[13] = "\0";
-    char majors[4][20] = {"Biomimicry", "Puppet Arts", "Bicycle Design", "EcoGastronomy"};
+    char majors[4][20] = {"Biomimicry", "PuppetArts", "BicycleDesign", "EcoGastronomy"};
 
     FILE *tmpFile = fopen(TEMP, "w");
     FILE *pFile = fopen(DB, "r");
@@ -219,7 +221,7 @@ void edit_student()
 {
     int studentind, data_to_change, major;
     char firstname[20], lastname[20], buffer[255], studentid[13], current_major[20], studentind_str[9], data_to_change_str[9], major_str[9];
-    char majors[4][20] = {"Biomimicry", "Puppet Arts", "BicycleDesign", "EcoGastronomy"};
+    char majors[4][20] = {"Biomimicry", "PuppetArts", "BicycleDesign", "EcoGastronomy"};
     char *token;
 
     FILE *tmpFile = fopen(TEMP, "w");
@@ -335,9 +337,8 @@ void delete_student(int *db_entries)
 
     struct Student student_data = fetch_student_data(studentind);
 
-    fgets(buffer, 255, pFile);
-    fscanf("%d %d", &current_index, &db_rows);
-    fprintf(tmpFile, "%d %d\n", current_index, db_rows - 1);
+    fscanf(pFile, "%d %d", &current_index, &db_rows);
+    fprintf(tmpFile, "%d %d", current_index, db_rows - 1);
 
     while ((fgets(buffer, 255, pFile)) != NULL)
     {
@@ -373,4 +374,167 @@ int get_ind_num(char buffer[255])
         numberlength++;
     }
     return atoi(index_number);
+}
+
+void show_student_list(int *studentind, int *db_entries)
+{
+    int linecount;
+    char buffer[255], cont, na[2];
+
+    FILE *pFile = fopen(DB, "r");
+
+    fgets(buffer, 255, pFile);
+    fgets(buffer, 255, pFile);
+
+listprint:
+    printf("\n\n----------------------------------------\n\n"
+           "Entries %d - %d of %d\n\n"
+           "Studentindex, Firstname, Lastname, StudentID, Major\n",
+           linecount + 1, linecount + 10, *db_entries);
+
+    while ((fgets(buffer, 255, pFile)) != NULL)
+    {
+        printf("%s", buffer);
+        linecount++;
+
+        if (((linecount + 1) % 10) == 0)
+        {
+        inputerror:
+            printf("\nContinue? (y/n): ");
+            fgets(na, 2, stdin);
+            cont = fgetc(stdin);
+
+            if (cont == 'y')
+            {
+                goto listprint;
+            }
+            else if (cont == 'n')
+            {
+                goto exit;
+            }
+            else
+            {
+                printf("Invalid input!\n");
+                goto inputerror;
+            }
+        }
+    }
+exit:
+
+    fclose(pFile);
+}
+
+void lookup_student()
+{
+    char buffer[255], choice_str[2], search_string[50], lookup_results[100][255], continue_lookup[2];
+    int choice;
+    FILE *pFile = fopen(DB, "r");
+
+lookup_start:
+    printf("\n\n----------------------------------------\n\n"
+           "1. Search by student ID\n"
+           "2. Search by student name\n"
+           "3. Exit\n");
+
+    fgets(choice_str, 2, stdin);
+    choice_str[strcspn(choice_str, "\n")] = '\0';
+    choice = atoi(choice_str);
+
+    switch (choice)
+    {
+    case 1:
+        printf("Enter student ID: ");
+        fgets(search_string, 50, stdin);
+        search_string[strcspn(search_string, "\n")] = '\0';
+        break;
+    case 2:
+        printf("Enter student name: ");
+        fgets(search_string, 50, stdin);
+        search_string[strcspn(search_string, "\n")] = '\0';
+        break;
+    case 3:
+        goto exit;
+        break;
+    default:
+        printf("Invalid input!\n");
+        goto lookup_start;
+        break;
+    }
+
+    int matching_entries = 0;
+    while ((fgets(buffer, 255, pFile)) != NULL)
+    {
+        if (strstr(buffer, search_string) != NULL)
+        {
+            strcpy(lookup_results[matching_entries], buffer);
+            matching_entries++;
+        }
+    }
+
+    printf("\n\n----------------------------------------\n\n"
+           "%d matching entries found\n\n",
+           matching_entries + 1);
+
+    for (int i = 0; i <= matching_entries; i++)
+    {
+        printf("%d: %s", matching_entries + 1, lookup_results[i]);
+    }
+
+continue_lookup:
+    printf("\n\n----------------------------------------\n\n"
+           "perform another search? (y/n): ");
+    fgets(continue_lookup, 2, stdin);
+    continue_lookup[strcspn(continue_lookup, "\n")] = '\0';
+
+    if (strcmp(continue_lookup, "y") == 0)
+    {
+        goto lookup_start;
+    }
+    else if (strcmp(continue_lookup, "n") == 0)
+    {
+        goto exit;
+    }
+    else
+    {
+        printf("Invalid input!\n");
+        goto continue_lookup;
+    }
+
+exit:
+}
+
+void lookup_or_browse(int *studentind, int *db_entries)
+{
+    int choice;
+    char choice_str[2];
+
+lookup_or_browse_start:
+    printf("\n\n----------------------------------------\n\n"
+           "1. Browse all students\n"
+           "2. Search for specific student\n"
+           "3. Exit\n"
+           "Enter choice: ");
+
+    fgets(choice_str, 2, stdin);
+    choice_str[strcspn(choice_str, "\n")] = '\0';
+    choice = atoi(choice_str);
+
+    switch (choice)
+    {
+    case 1:
+        show_student_list(studentind, db_entries);
+        break;
+    case 2:
+        lookup_student();
+        goto end;
+        break;
+    case 3:
+        goto end;
+        break;
+    default:
+        printf("Enter a valid choice\n");
+        goto lookup_or_browse_start;
+        break;
+    }
+end:
 }
