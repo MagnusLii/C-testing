@@ -17,10 +17,10 @@ int main(void)
     while (money >= busTicketPrice || money >= taxiTripPrice)
     {
         printf("\n\n--------------------------------\n");
-        printf("You have %.2lf euros left.\n", money);
+        printf("You have %.2f euros left.\n", money);
         printf("Do you want to take\n");
-        printf("1) bus (%.2lf euros)\n", busTicketPrice);
-        printf("2) taxi (%.2lf euros)\n", taxiTripPrice);
+        printf("1) bus (%.2f euros)\n", busTicketPrice);
+        printf("2) taxi (%.2f euros)\n", taxiTripPrice);
         printf("Enter your selection: ");
         scanf("%d", &selection);
 
@@ -58,7 +58,7 @@ int main(void)
         }
     }
 
-    printf("You have %.2lf euros left.\n"
+    printf("You have %.2f euros left.\n"
            "You need to walk. Bye.\n",
            money);
 

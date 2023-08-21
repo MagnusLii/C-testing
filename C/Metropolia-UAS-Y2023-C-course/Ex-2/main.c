@@ -31,6 +31,6 @@ is taxed with lower rate and part of the salary with higher rate.*/
 
 int main(void)
 {
-    
+    float arr1[12]={}, arr2[12]={}, taxRate, incomeLimit, greaterTaxRate;
     return 0;
 }
