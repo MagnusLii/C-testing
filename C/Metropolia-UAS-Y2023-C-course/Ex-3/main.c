@@ -44,17 +44,17 @@ int main()
         studentGrades[studentNumber - 1] = grade;
     }
 
-    printf("Student Grade\n");
+    printf("%-7s %-7s\n","Student", "Grade");
 
     for (int i = 0; i < students; i++)
     {
         if (studentGrades[i] != -1)
         {
-            printf("%2d %2d\n", i + 1, studentGrades[i]);
+            printf("%-7d %-7d\n", i + 1, studentGrades[i]);
         }
         else
         {
-            printf("%2d %2s\n", i + 1, "N/A");
+            printf("%-7d %-7s\n", i + 1, "N/A");
         }
     }
 
