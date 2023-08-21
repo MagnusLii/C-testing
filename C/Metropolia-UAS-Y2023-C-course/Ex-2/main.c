@@ -1,36 +1,40 @@
-/*Ex 2.
-Write a program that defines two floating-point arrays of 12 elements each. The program then asks
-user to enter tax percentage and yearly income limit up to which the percentage applies to and the
-(greater) tax percentage that will be applied to income that is over the limit. Then program asks user
-to enter salary of each month and stores the values in the array. After user has entered all monthly
-salaries, the program calculates tax for each month.
-The program prints all salaries with two decimal precision and the amount of tax for each month.
-Example: (three dots indicates rows not shown in this example):
-Enter tax rate: 18.0
-Enter income limit: 10000
-Enter tax rate for income over the limit: 36.0
-Enter income for month 1: 998
-...
-Enter income for month 6: 1489.51
-...
-Enter income for month 12: 998
-month income tax
-1 998.00 179.64
-2 998.00 179.64
-...
-6 1489.51 268.11
-...
-12 998.00 359.28
-You need to get familiar with printf field width specifiers to complete this!
-Note that decimal points must be aligned as shown above!
-The tricky part is the month where (if) the total income goes over the limit. That month part of salary
-is taxed with lower rate and part of the salary with higher rate.*/
-
-
 #include <stdio.h>
 
 int main(void)
 {
-    float arr1[12]={}, arr2[12]={}, taxRate, incomeLimit, greaterTaxRate;
+    float salaries[12] = {}, taxedMoney[12] = {}, taxRate, incomeLimit, greaterTaxRate;
+
+    printf("Enter tax rate: ");
+    scanf("%f", &taxRate);
+
+    printf("Enter income limit: ");
+    scanf("%f", &incomeLimit);
+
+    printf("Enter tax rate for income over the limit: ");
+    scanf("%f", &greaterTaxRate);
+
+    for (int i = 0; i < 12; i++)
+    {
+        printf("Enter income for month %d: ", i + 1);
+        scanf("%f", &salaries[i]);
+    }
+
+    printf("%4s %10s %10s\n", "month", "income", "tax");
+
+    for (int i = 0; i < 12; i++)
+    {
+        if (salaries[i] > incomeLimit)
+        {
+            // Calculates combined tax for salaries under and over incomelimit.
+            // taxedMoney = (SalaryUpToLimit * taxRate) + (SalaryOverLimit * greaterTaxRate)
+            taxedMoney[i] = incomeLimit * (taxRate / 100) + (salaries[i] - incomeLimit) * (greaterTaxRate / 100);
+        }
+        else
+        {
+            taxedMoney[i] = salaries[i] * (taxRate / 100);
+        }
+        printf("%4d %10.2f %10.2f\n", i + 1, salaries[i], taxedMoney[i]);
+    }
+
     return 0;
 }
