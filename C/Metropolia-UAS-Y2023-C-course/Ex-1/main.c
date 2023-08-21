@@ -2,25 +2,25 @@
 
 int main(void)
 {
-    float busTicketPrice, taxiTripPrice, money;
+    double busTicketPrice, taxiTripPrice, money;
     int selection;
 
     printf("Enter price of bus ticket: ");
-    scanf("%f", &busTicketPrice);
+    scanf("%lf", &busTicketPrice);
 
     printf("Enter price of taxi: ");
-    scanf("%f", &taxiTripPrice);
+    scanf("%lf", &taxiTripPrice);
 
     printf("How much money you have: ");
-    scanf("%f", &money);
+    scanf("%lf", &money);
 
     while (money >= busTicketPrice || money >= taxiTripPrice)
     {
         printf("\n\n--------------------------------\n");
-        printf("You have %.2f euros left.\n", money);
+        printf("You have %.2lf euros left.\n", money);
         printf("Do you want to take\n");
-        printf("1) bus (%.2f euros)\n", busTicketPrice);
-        printf("2) taxi (%.2f euros)\n", taxiTripPrice);
+        printf("1) bus (%.2lf euros)\n", busTicketPrice);
+        printf("2) taxi (%.2lf euros)\n", taxiTripPrice);
         printf("Enter your selection: ");
         scanf("%d", &selection);
 
@@ -58,8 +58,8 @@ int main(void)
         }
     }
 
-    printf("You have %.2f euros left.\n"
-           "You need to walk. Bye\n",
+    printf("You have %.2lf euros left.\n"
+           "You need to walk. Bye.\n",
            money);
 
     return 0;
