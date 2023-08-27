@@ -58,6 +58,7 @@ int main(void)
         }
     }
 
+    printf("\n\n--------------------------------\n");
     printf("You have %.2f euros left.\n"
            "You need to walk. Bye.\n",
            money);
