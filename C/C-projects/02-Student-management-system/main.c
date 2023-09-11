@@ -7,6 +7,8 @@
 #define TEMP "temp.tmp"
 #define nameLenght 20
 #define bufferlenght 255
+#define studentidLenght 13
+#define majorLenght 20
 
 
 void add_student(int *studentind, char (*date_string)[20], int *db_entries);
@@ -20,7 +22,10 @@ void lookup_student();
 struct Student
 {
     int studentind, db_entry_row;
-    char firstname[nameLenght], lastname[nameLenght], studentid[13], major[20];
+    char firstname[nameLenght];
+    char lastname[nameLenght];
+    char studentid[studentidLenght];
+    char major[majorLenght];
 };
 
 typedef struct Student Struct;
