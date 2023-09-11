@@ -3,20 +3,24 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define DB "db.txt"
+#define TEMP "temp.tmp"
+#define nameLenght 20
+#define bufferlenght 255
+
+
 void add_student(int *studentind, char (*date_string)[20], int *db_entries);
 void edit_student();
 void delete_student(int *db_entries);
-int get_ind_num(char buffer[255]);
+int get_ind_num(char buffer[bufferlenght]);
 void show_student_list(int *studentind, int *db_entries);
 void lookup_or_browse(int *studentind, int *db_entries);
-
-#define DB "db.txt"
-#define TEMP "temp.tmp"
+void lookup_student();
 
 struct Student
 {
     int studentind, db_entry_row;
-    char firstname[20], lastname[20], studentid[13], major[20];
+    char firstname[nameLenght], lastname[nameLenght], studentid[13], major[20];
 };
 
 typedef struct Student Struct;
@@ -25,10 +29,10 @@ Struct fetch_student_data(int studentind)
 {
     Struct student;
     int tokencount = 0, linecount = 0;
-    char *token, buffer[255];
+    char *token, buffer[bufferlenght];
     FILE *dbFile = fopen(DB, "r");
 
-    while ((fgets(buffer, 255, dbFile)) != NULL)
+    while ((fgets(buffer, bufferlenght, dbFile)) != NULL)
     {
         linecount++;
         if (get_ind_num(buffer) == studentind)
@@ -145,7 +149,7 @@ void add_student(int *studentind, char (*date_string)[20], int *db_entries)
 {
 
     int major;
-    char firstname[20], lastname[20], buffer[255], student_number[7], major_str[9];
+    char firstname[nameLenght], lastname[nameLenght], buffer[bufferlenght], student_number[7], major_str[9];
     char studentid[13] = "\0";
     char majors[4][20] = {"Biomimicry", "PuppetArts", "BicycleDesign", "EcoGastronomy"};
 
@@ -220,7 +224,7 @@ choose_major:
 void edit_student()
 {
     int studentind, data_to_change, major;
-    char firstname[20], lastname[20], buffer[255], studentid[13], current_major[20], studentind_str[9], data_to_change_str[9], major_str[9];
+    char firstname[nameLenght], lastname[nameLenght], buffer[bufferlenght], studentid[13], current_major[20], studentind_str[9], data_to_change_str[9], major_str[9];
     char majors[4][20] = {"Biomimicry", "PuppetArts", "BicycleDesign", "EcoGastronomy"};
     char *token;
 
@@ -322,7 +326,7 @@ exit:
 void delete_student(int *db_entries)
 {
     int studentind;
-    char buffer[255], studentnumber[8], studentind_str[9];
+    char buffer[bufferlenght], studentnumber[8], studentind_str[9];
     int count = 1, current_index, db_rows;
 
     FILE *pFile = fopen(DB, "r");
@@ -360,7 +364,7 @@ void delete_student(int *db_entries)
     rename(TEMP, DB);
 }
 
-int get_ind_num(char buffer[255])
+int get_ind_num(char buffer[bufferlenght])
 {
     char index_number[8];
     int numberlength = 0;
@@ -379,7 +383,7 @@ int get_ind_num(char buffer[255])
 void show_student_list(int *studentind, int *db_entries)
 {
     int linecount;
-    char buffer[255], cont, na[5];
+    char buffer[bufferlenght], cont, na[5];
 
     FILE *pFile = fopen(DB, "r");
 
@@ -426,7 +430,7 @@ exit:
 
 void lookup_student()
 {
-    char buffer[255], choice_str[5], search_string[50], lookup_results[100][255], continue_lookup[5];
+    char buffer[bufferlenght], choice_str[5], search_string[50], lookup_results[100][bufferlenght], continue_lookup[5];
     int choice;
 
 lookup_start:
