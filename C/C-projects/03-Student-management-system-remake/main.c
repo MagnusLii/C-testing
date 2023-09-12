@@ -11,7 +11,8 @@
 #define nameLenght 21
 #define bufferlenght 256
 #define studentidLenght 13
-#define defultStringLenght 21
+#define defaultStringLenght 21
+#define longStringLenght 128
 #define separator "\n\n----------------------------------------\n\n"
 
 // prototypes
@@ -19,8 +20,9 @@ void get_DB_row_ind(int *pStudentind, int *pDB_rows);
 bool improved_fgets(char *stringToStoreTo, const int maxLenghtOfString);
 bool string_to_int_conv(const char *str, int *result);
 bool string_to_double_conv(const char *inputStr, double *result);
-void add_student(int *studentindPointer, int *db_rowsPointer, const char (*date_string)[20]);
-void fgets_string_whileloop_template(const char stringToPrint[], const char errorMsg[], char *stringToStoreTo, const int maxLenghtOfString);
+void fgets_string_whileloop(const char stringToPrint[], const char errorMsg[], char *stringToStoreTo, const int maxLenghtOfString);
+void fgets_string_whileloop_alphanumerical(const char stringToPrint[], const char errorMsg[], char *stringToStoreTo, const int maxLenghtOfString);
+void dtime_string(char *string_to_store_to[defaultStringLenght]);
 
 // structs
 struct Student
@@ -29,26 +31,17 @@ struct Student
     char firstname[nameLenght];
     char lastname[nameLenght];
     char studentid[studentidLenght];
-    char major[defultStringLenght];
+    char major[defaultStringLenght];
 };
 
 typedef struct Student Struct;
 
 int main()
 {
-    int switch_choice, studentind, DB_rows;
-    char choice_str[defultStringLenght];
-    int *pStudentind = &studentind, *pDB_rows = &DB_rows;
-
-    char date_string[defultStringLenght];
-    char(*pDate_string)[defultStringLenght] = &date_string;
+    int switch_choice;
+    char choice_str[defaultStringLenght];
 
     bool exit = false;
-
-    time_t current_time = time(NULL);
-    strftime(date_string, 20, "%Y%m", localtime(&current_time));
-
-    get_DB_row_ind(pStudentind, pDB_rows);
 
     while (exit == false)
     {
@@ -65,15 +58,16 @@ int main()
                "Enter your choice: ",
                separator);
 
-        improved_fgets(choice_str, defultStringLenght);
+        improved_fgets(choice_str, defaultStringLenght);
         string_to_int_conv(choice_str, &switch_choice);
 
         switch (switch_choice)
         {
         case 1:
-            add_student(pStudentind, pDB_rows);
-            // printf("case 1");
-            //  Add new student function here
+            add_student();
+            // add_student(pStudentind, pDB_rows);
+            //  printf("case 1");
+            //   Add new student function here
             break;
         case 2:
             printf("case 2");
@@ -163,7 +157,6 @@ bool improved_fgets(char *stringToStoreTo, const int maxLenghtOfString)
 bool string_to_int_conv(const char *str, int *result)
 {
     char *endptr;
-
     long int num = strtol(str, &endptr, 10);
 
     if (*endptr != '\0')
@@ -189,7 +182,6 @@ bool string_to_int_conv(const char *str, int *result)
 bool string_to_double_conv(const char *inputStr, double *result)
 {
     char *endptr;
-
     double num = strtod(inputStr, &endptr);
 
     if (*endptr != '\0')
@@ -205,7 +197,7 @@ bool string_to_double_conv(const char *inputStr, double *result)
 }
 
 // Template for fgets while loop.
-void fgets_string_whileloop_template(const char stringToPrint[], const char errorMsg[], char *stringToStoreTo, const int maxLenghtOfString)
+void fgets_string_whileloop(const char stringToPrint[], const char errorMsg[], char *stringToStoreTo, const int maxLenghtOfString)
 {
     bool input_valid = false;
 
@@ -220,13 +212,58 @@ void fgets_string_whileloop_template(const char stringToPrint[], const char erro
     }
 }
 
+void fgets_string_whileloop_alphanumerical(const char stringToPrint[], const char errorMsg[], char *stringToStoreTo, const int maxLenghtOfString)
+{
+    bool input_valid = false;
+
+    while (input_valid == false)
+    {
+        printf("%s", stringToPrint);
+        input_valid = improved_fgets(stringToStoreTo, maxLenghtOfString);
+
+        // Alphanumerical test.
+        int i = 0;
+        while (input_valid == true && stringToStoreTo[i] != '\0')
+        {
+            if (isalnum(stringToStoreTo[i]) == false)
+            {
+                // Showing user where the error occured.
+                printf("\nNon alphanumerical character detected at character %d (%c)\n"
+                       "Your input: %s\n"
+                       "Error loc:  ",
+                       i+1, stringToStoreTo[i], stringToStoreTo);
+
+                for (int j = 0; j < i; j++)
+                {
+                    printf(" ");
+                }
+                printf("^\n\n");
+                input_valid = false;
+            }
+            i++;
+        }
+
+        if (input_valid == false)
+        {
+            printf("%s", errorMsg);
+        }
+    }
+}
+
+void dtime_string(char *string_to_store_to[defaultStringLenght])
+{
+    time_t current_time = time(NULL);
+    strftime(string_to_store_to, 20, "%Y%m", localtime(&current_time));
+}
+
+/*
 void add_student(int *studentindPointer, int *db_rowsPointer, const char (*date_string)[20])
 {
-    char firstname[nameLenght], lastname[nameLenght], buffer[bufferlenght], student_number[7], major_str[defultStringLenght];
+    char firstname[nameLenght], lastname[nameLenght], buffer[bufferlenght], student_number[7], major_str[defaultStringLenght];
     char studentid[13] = '\0';
     bool input_valid = false;
     char majors[4][20] = {"Biomimicry", "PuppetArts", "BicycleDesign", "EcoGastronomy"};
-    char choice_str[defultStringLenght] = '\0';
+    char choice_str[defaultStringLenght] = '\0';
     int choice = 0;
 
     FILE *tmpFile = fopen(TEMP, "w");
@@ -259,7 +296,7 @@ void add_student(int *studentindPointer, int *db_rowsPointer, const char (*date_
                "4. EcoGastronomy\n"
                "Enter choice: ");
 
-        improved_fgets(choice_str, defultStringLenght);
+        improved_fgets(choice_str, defaultStringLenght);
         string_to_int_conv(choice_str, choice);
         if (choice > 0 && choice < 5)
         {
@@ -297,4 +334,22 @@ void add_student(int *studentindPointer, int *db_rowsPointer, const char (*date_
         printf("Enter a valid choice\n");
 
     }
+}
+*/
+
+void add_student()
+{
+    FILE *tmpFile = fopen(TEMP, "w");
+    FILE *pFile = fopen(DB, "r");
+
+    // Gathering new student information.
+    char firstname[nameLenght];
+    char inputstr[longStringLenght];
+    char errorMsg[longStringLenght] = "Please enter a valid firstname.\n";
+    sprintf(inputstr, "Enter firstname (max %d alphanumerical characters only!)\n"
+                      "or enter '0' to cancel: ",
+            nameLenght - 1);
+
+    printf("%s", separator);
+    fgets_string_whileloop_alphanumerical(inputstr, errorMsg, firstname, nameLenght);
 }
