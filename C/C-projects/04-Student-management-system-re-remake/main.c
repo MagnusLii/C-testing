@@ -49,7 +49,7 @@ void addNewStudent();
 int main()
 {
     int switch_choice;
-    char choice_str[DEFAULT_STRING_LENGHT];
+    char choice_str[DEFAULT_STRING_LENGHT] = "\0";
 
     bool exit = false;
 
@@ -342,7 +342,7 @@ bool createStudentId(struct Student *student)
     student->db_entry_row++;
 
     // Adding student index to studentid string.
-    char modifiedStudentIndStr[DEFAULT_STRING_LENGHT];
+    char modifiedStudentIndStr[DEFAULT_STRING_LENGHT] = "\0";
     sprintf(modifiedStudentIndStr, "%06d", student->studentind);
     strcat(student->studentid, modifiedStudentIndStr);
 
@@ -405,7 +405,7 @@ void convert_to_lowercase(char *str)
 bool final_DBentry_checks(struct Student *student)
 {
     int errors_found = 0;
-    char errorcodes[DEFAULT_STRING_LENGHT];
+    char errorcodes[DEFAULT_STRING_LENGHT] = "\0";
 
     // checking for non alphanumerical characters.
     for (int i = 0; i < strlen(student->firstname); i++)
@@ -446,7 +446,7 @@ void addNewStudent()
     // Gathering new student information.
     // Creating firstname.
     struct Student newStudent;
-    char inputstr[LONG_STRING_LENGHT];
+    char inputstr[LONG_STRING_LENGHT] = "\0";
     sprintf(inputstr, "Enter firstname (max %d alphanumerical characters only!)\n", NAME_LENGHT - 1);
 
     char errorMsg[LONG_STRING_LENGHT] = "Please enter a valid firstname.\n";
@@ -518,7 +518,7 @@ void addNewStudent()
 
     // Copying existing data to temp file.
     int rowCount = 0;
-    char buffer[INPUT_BUFFER_LENGHT];
+    char buffer[INPUT_BUFFER_LENGHT] = "\0";
     while (fgets(buffer, INPUT_BUFFER_LENGHT, pFile) != NULL)
     {
         rowCount++;
@@ -545,3 +545,4 @@ void addNewStudent()
 
     printf("New student added to DB.\n");
 }
+
