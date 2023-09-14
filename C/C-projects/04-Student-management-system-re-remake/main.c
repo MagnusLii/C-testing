@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <errno.h>
+#include <float.h>
 
 // #defines
 #define DB "db.txt"
@@ -132,14 +134,14 @@ bool improved_fgets(char stringToStoreTo[], const int maxLenghtOfString)
 
     if (fgets(stringToStoreTo, inputbufferlenght, stdin) != NULL)
     {
-    
+
         if (stringToStoreTo[0] == '\n' || stringToStoreTo[0] == '\0')
         {
             printf("Error: Empty input.\n");
             stringToStoreTo[0] = '\0'; // Clearing string.
             return false;
         }
-        
+
         while (newline_found == false)
         {
             if (stringToStoreTo[i] == '\n')
@@ -155,7 +157,6 @@ bool improved_fgets(char stringToStoreTo[], const int maxLenghtOfString)
             }
             i++;
         }
-        
     }
 
     return true;
@@ -170,7 +171,9 @@ bool string_to_int_conv(const char str[], int *result)
 
     if (errno == ERANGE)
     {
-        printf("Error: could not complete conversion to integer, number out of range.\n");
+        printf("Error: could not complete conversion to integer, number out of range.\n"
+               "Enter a number between %d and %d.\n",
+               LONG_MIN, LONG_MAX);
         return false;
     }
     else if (*endptr != '\0')
@@ -201,7 +204,9 @@ bool string_to_double_conv(const char *inputStr, double *result)
 
     if (errno == ERANGE)
     {
-        printf("Error: could not complete conversion to double, number out of range.\n");
+        printf("Error: could not complete conversion to double, number out of range.\n"
+               "Enter a number between %f and %f.\n",
+               DBL_MIN, DBL_MAX);
         return false;
     }
     else if (*endptr != '\0')
@@ -222,6 +227,8 @@ void fgets_string_whileloop(const char stringToPrint[], const char retryMessage[
     while (input_valid == false)
     {
         printf("%s", stringToPrint);
+        printf("Or input 'Exit' to cancel.\n"
+               "Your input: ");
         input_valid = improved_fgets(stringToStoreTo, maxLenghtOfString);
         if (input_valid == false)
         {
@@ -230,6 +237,7 @@ void fgets_string_whileloop(const char stringToPrint[], const char retryMessage[
     }
 }
 
+// Template for fgets while loop, only allows alphanumerical characters.
 void fgets_string_whileloop_alphanumerical(const char stringToPrint[], const char retryMessage[], char *stringToStoreTo, const int maxLenghtOfString)
 {
     bool input_valid = false;
@@ -237,6 +245,8 @@ void fgets_string_whileloop_alphanumerical(const char stringToPrint[], const cha
     while (input_valid == false)
     {
         printf("%s", stringToPrint);
+        printf("Or input 'Exit' to cancel.\n"
+               "Your input: ");
         input_valid = improved_fgets(stringToStoreTo, maxLenghtOfString);
 
         // Alphanumerical test.
@@ -268,15 +278,17 @@ void fgets_string_whileloop_alphanumerical(const char stringToPrint[], const cha
     }
 }
 
+// Gets current datetime and stores it in string_to_store_to.
 void dtime_string(char string_to_store_to[defaultStringLenght])
 {
     time_t current_time = time(NULL);
     strftime(string_to_store_to, 20, "%Y%m", localtime(&current_time));
 }
 
-bool zero_to_cancel(const char inputStr[])
+// Checks if input is 'Exit' and returns true if so.
+bool Exit_to_cancel(const char inputStr[])
 {
-    if (strcmp(inputStr, "0") == 0)
+    if (strcmp(inputStr, "Exit") == 0)
     {
         return true;
     }
@@ -286,6 +298,7 @@ bool zero_to_cancel(const char inputStr[])
     }
 }
 
+// Creates student id and stores it in pointerStudentIDlocation.
 bool create_studentid(char pointerStudentIDlocation[])
 {
     // Student id == date (yyyy+mm) + student number (6 digits)
@@ -314,6 +327,43 @@ bool create_studentid(char pointerStudentIDlocation[])
     return true;
 }
 
+// Asks user to choose a major and stores it in intToStoreTo.
+bool choose_major(char intToStoreTo[])
+{
+    char userinput[inputbufferlenght];
+    int userinput_int;
+
+    char loopMsg[longStringLenght] = "Choose major\n1. Biomimicry\n2. Puppet Arts\n 3. Bicycle Design\n 4. EcoGastronomy\n";
+    char errorMsg[longStringLenght] = "Please enter a valid choice. [Single integer number]\n";
+
+    bool input_valid = false;
+    while (input_valid == false)
+    {
+        fgets_string_whileloop_alphanumerical(loopMsg, errorMsg, userinput, inputbufferlenght);
+
+        // Checking for cancellation.
+        if (Exit_to_cancel(userinput) == true)
+        {
+            printf("Cancelling...\n");
+            return false;
+        }
+        input_valid = string_to_int_conv(userinput, &userinput_int);
+        if (input_valid == false)
+        {
+            printf("%s", errorMsg);
+        }
+
+        else if (userinput_int < 1 || userinput_int > 4)
+        {
+            printf("Enter a number betwee 1 an 4\n");
+            printf("%s", errorMsg);
+            input_valid = false;
+        }
+    }
+
+    return true;
+}
+
 void add_student()
 {
     FILE *tmpFile = fopen(TEMP, "w");
@@ -322,30 +372,26 @@ void add_student()
     // Gathering new student information.
     char firstname[nameLenght];
     char inputstr[longStringLenght];
-    sprintf(inputstr, "Enter firstname (max %d alphanumerical characters only!)\n"
-                      "or enter '0' to cancel: ",
-            nameLenght - 1);
+    sprintf(inputstr, "Enter firstname (max %d alphanumerical characters only!)\n", nameLenght - 1);
 
     char errorMsg[longStringLenght] = "Please enter a valid firstname.\n";
 
     printf("%s", separator);
     fgets_string_whileloop_alphanumerical(inputstr, errorMsg, firstname, nameLenght);
-    if (zero_to_cancel(firstname) == true)
+    if (Exit_to_cancel(firstname) == true)
     {
         printf("Cancelling...\n");
         return;
     }
 
     char lastname[nameLenght];
-    sprintf(inputstr, "Enter lastname (max %d alphanumerical characters only!)\n"
-                      "or enter '0' to cancel: ",
-            nameLenght - 1);
-    
+    sprintf(inputstr, "Enter lastname (max %d alphanumerical characters only!)\n", nameLenght - 1);
+
     char errorMsg2[longStringLenght] = "Please enter a valid lastname.\n";
 
     printf("%s", separator);
     fgets_string_whileloop_alphanumerical(inputstr, errorMsg2, lastname, nameLenght);
-    if (zero_to_cancel(lastname) == true)
+    if (Exit_to_cancel(lastname) == true)
     {
         printf("Cancelling...\n");
         return;
@@ -355,8 +401,5 @@ void add_student()
     char studentid[studentidLenght];
     create_studentid(studentid);
 
-    printf("WE made it here\n");
-    printf("%s ", firstname);
-    printf("%s ", lastname);
-    printf("%s", studentid);
+    printf("student record: %s %s %s\n", firstname, lastname, studentid);
 }
