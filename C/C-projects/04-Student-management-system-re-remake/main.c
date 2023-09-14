@@ -16,18 +16,8 @@
 #define studentidLenght 13
 #define defaultStringLenght 21
 #define separator "\n\n----------------------------------------\n\n"
-
-// prototypes
-bool get_DB_row_ind(int *pStudentind, int *pDB_rows);
-bool improved_fgets(char stringToStoreTo[], const int maxLenghtOfString);
-bool string_to_int_conv(const char str[], int *result);
-bool string_to_double_conv(const char *inputStr, double *result);
-void fgets_string_whileloop(const char stringToPrint[], const char retryMessage[], char *stringToStoreTo, const int maxLenghtOfString);
-void fgets_string_whileloop_alphanumerical(const char stringToPrint[], const char retryMessage[], char *stringToStoreTo, const int maxLenghtOfString);
-void dtime_string(char string_to_store_to[defaultStringLenght]);
-bool zero_to_cancel(const char inputStr[]);
-bool create_studentid(char pointerStudentIDlocation[]);
-void add_student();
+#define MAJORS {"Biomimicry", "PuppetArts", "BicycleDesign", "EcoGastronomy"}
+#define NUM_MAJORS 4
 
 // structs
 struct Student
@@ -40,6 +30,18 @@ struct Student
 };
 
 typedef struct Student Struct;
+
+// prototypes
+bool get_DB_row_ind(int *pStudentind, int *pDB_rows);
+bool improved_fgets(char *stringToStoreTo, const int maxLenghtOfString);
+bool string_to_int_conv(const char *str, int *result);
+bool string_to_double_conv(const char *inputStr, double *result);
+void fgets_string_whileloop(const char *stringToPrint, const char *retryMessage, char *stringToStoreTo, const int maxLenghtOfString);
+void fgets_string_whileloop_alphanumerical(const char *stringToPrint, const char *retryMessage, char *stringToStoreTo, const int maxLenghtOfString);
+void dtime_string(char *string_to_store_to);
+bool zero_to_cancel(const char *inputStr);
+bool create_studentid(struct Student *student);
+void add_new_student();
 
 int main()
 {
@@ -69,10 +71,7 @@ int main()
         switch (switch_choice)
         {
         case 1:
-            add_student();
-            // add_student(pStudentind, pDB_rows);
-            //  printf("case 1");
-            //   Add new student function here
+            add_new_student();
             break;
         case 2:
             printf("case 2");
@@ -105,7 +104,8 @@ int main()
 // ##############################################################################
 // ##############################################################################
 
-// Gets the current index for students and number of entries (rows) in DB.
+/*  Gets the current index for students and number of entries (rows) in DB.
+    Returns false if unable to open DB file or read correct string.*/
 bool get_DB_row_ind(int *pStudentind, int *pDB_rows)
 {
     FILE *pFile = fopen(DB, "r");
@@ -126,8 +126,11 @@ bool get_DB_row_ind(int *pStudentind, int *pDB_rows)
     return true;
 }
 
-// Normal fgets() function but replaces \n with \0 and does error checking.
-bool improved_fgets(char stringToStoreTo[], const int maxLenghtOfString)
+/*  Normal fgets() function but replaces \n with \0.
+    Does not accept empty strings.
+    checks if userinput is longer than maxLenghtOfString.
+    clears string and returns false incase of error.*/
+bool improved_fgets(char *stringToStoreTo, const int maxLenghtOfString)
 {
     bool newline_found = false;
     int i = 0;
@@ -151,7 +154,7 @@ bool improved_fgets(char stringToStoreTo[], const int maxLenghtOfString)
             }
             if (i >= maxLenghtOfString - 1)
             {
-                printf("Error: Input over max accepted lenght of %d characters.\n", maxLenghtOfString - 1);
+                printf("\nError: Input over max accepted lenght of %d characters.\n", maxLenghtOfString - 1);
                 stringToStoreTo[0] = '\0'; // Clearing string.
                 return false;
             }
@@ -162,8 +165,10 @@ bool improved_fgets(char stringToStoreTo[], const int maxLenghtOfString)
     return true;
 }
 
-// Converts string to int and returns true if successful, does not allow partial converions.
-bool string_to_int_conv(const char str[], int *result)
+/*  Converts string to l int and returns true if successful, does not allow partial converions.
+    Checks that input is within range and is possible to convert.
+    Does not allow partial conversions Eg "3.6" -> "3" */
+bool string_to_int_conv(const char *str, int *result)
 {
     char *endptr;
     errno = 0;
@@ -195,7 +200,8 @@ bool string_to_int_conv(const char str[], int *result)
     return true;
 }
 
-// Converts string to double and returns true if successful.
+/*  Converts string to double and returns true if successful.
+    checks that input is within range and that conversion was possible.*/
 bool string_to_double_conv(const char *inputStr, double *result)
 {
     char *endptr;
@@ -220,7 +226,7 @@ bool string_to_double_conv(const char *inputStr, double *result)
 }
 
 // Template for fgets while loop.
-void fgets_string_whileloop(const char stringToPrint[], const char retryMessage[], char *stringToStoreTo, const int maxLenghtOfString)
+void fgets_string_whileloop(const char *stringToPrint, const char *retryMessage, char *stringToStoreTo, const int maxLenghtOfString)
 {
     bool input_valid = false;
 
@@ -237,8 +243,9 @@ void fgets_string_whileloop(const char stringToPrint[], const char retryMessage[
     }
 }
 
-// Template for fgets while loop, only allows alphanumerical characters.
-void fgets_string_whileloop_alphanumerical(const char stringToPrint[], const char retryMessage[], char *stringToStoreTo, const int maxLenghtOfString)
+/*  Template for fgets while loop, only allows alphanumerical characters.
+    Shows user where the error is incase of inputerror.*/
+void fgets_string_whileloop_alphanumerical(const char *stringToPrint, const char *retryMessage, char *stringToStoreTo, const int maxLenghtOfString)
 {
     bool input_valid = false;
 
@@ -265,7 +272,7 @@ void fgets_string_whileloop_alphanumerical(const char stringToPrint[], const cha
                 {
                     printf(" ");
                 }
-                printf("^\n\n");
+                printf("^\n");
                 input_valid = false;
             }
             i++;
@@ -279,16 +286,26 @@ void fgets_string_whileloop_alphanumerical(const char stringToPrint[], const cha
 }
 
 // Gets current datetime and stores it in string_to_store_to.
-void dtime_string(char string_to_store_to[defaultStringLenght])
+void dtime_string(char *string_to_store_to)
 {
     time_t current_time = time(NULL);
     strftime(string_to_store_to, 20, "%Y%m", localtime(&current_time));
 }
 
-// Checks if input is 'Exit' and returns true if so.
-bool Exit_to_cancel(const char inputStr[])
+/*  Checks if input is 'exit' and returns true if so.
+    Doesn't edit inputStr. */
+bool exit_to_cancel(const char *inputStr)
 {
-    if (strcmp(inputStr, "Exit") == 0)
+    // Convert to lowercase
+    char inputStrLower[defaultStringLenght];
+    int i = 0;
+    for (i; i < strlen(inputStr); i++)
+    {
+        inputStrLower[i] = tolower(inputStr[i]);
+    }
+    inputStrLower[i] = '\0';
+
+    if (strcmp(inputStrLower, "exit") == 0)
     {
         return true;
     }
@@ -298,42 +315,45 @@ bool Exit_to_cancel(const char inputStr[])
     }
 }
 
-// Creates student id and stores it in pointerStudentIDlocation.
-bool create_studentid(char pointerStudentIDlocation[])
+/* Creates student id and stores it in Student struct.
+    Also stores student index and DB row in struct.*/
+bool create_studentid(struct Student *student)
 {
     // Student id == date (yyyy+mm) + student number (6 digits)
     char date_string[defaultStringLenght];
 
     // Fetching and adding datetime to studentid string.
     dtime_string(date_string);
-    strcat(pointerStudentIDlocation, date_string);
+    strcat(student->studentid, date_string);
 
     // Fetching/updating student index and DB rows.
-    int currentstudentind, currentdbrows;
-    currentstudentind++;
-    currentdbrows++;
 
-    if (get_DB_row_ind(&currentstudentind, &currentdbrows) == false)
+    if (get_DB_row_ind(&student->studentind, &student->db_entry_row) == false)
     {
         // Error messages are done within get_DB_row_ind().
         return false;
     }
+    student->studentind++;
+    student->db_entry_row++;
 
     // Adding student index to studentid string.
-    char currentstudentind_str[defaultStringLenght];
-    sprintf(currentstudentind_str, "%06d", currentstudentind);
-    strcat(pointerStudentIDlocation, currentstudentind_str);
+    char modifiedStudentIndStr[defaultStringLenght];
+    sprintf(modifiedStudentIndStr, "%06d", student->studentind);
+    strcat(student->studentid, modifiedStudentIndStr);
 
     return true;
 }
 
-// Asks user to choose a major and stores it in intToStoreTo.
-bool choose_major(char intToStoreTo[])
+/*  Asks user to choose a major and stores it in intToStoreTo.
+    Returns false if user cancels midway.
+    Does error checking for if input is non int or out of range.*/
+bool choose_major(char *stringToStoreTo)
 {
     char userinput[inputbufferlenght];
     int userinput_int;
 
-    char loopMsg[longStringLenght] = "Choose major\n1. Biomimicry\n2. Puppet Arts\n 3. Bicycle Design\n 4. EcoGastronomy\n";
+    char majors[NUM_MAJORS][defaultStringLenght] = MAJORS;
+    char loopMsg[longStringLenght] = "Choose major\n1. Biomimicry\n2. Puppet Arts\n3. Bicycle Design\n4. EcoGastronomy\n";
     char errorMsg[longStringLenght] = "Please enter a valid choice. [Single integer number]\n";
 
     bool input_valid = false;
@@ -342,64 +362,177 @@ bool choose_major(char intToStoreTo[])
         fgets_string_whileloop_alphanumerical(loopMsg, errorMsg, userinput, inputbufferlenght);
 
         // Checking for cancellation.
-        if (Exit_to_cancel(userinput) == true)
+        if (exit_to_cancel(userinput) == true)
         {
             printf("Cancelling...\n");
             return false;
         }
+        // Validate input
         input_valid = string_to_int_conv(userinput, &userinput_int);
         if (input_valid == false)
         {
             printf("%s", errorMsg);
         }
-
+        // validate range.
         else if (userinput_int < 1 || userinput_int > 4)
         {
-            printf("Enter a number betwee 1 an 4\n");
-            printf("%s", errorMsg);
+            printf("\nError: Enter a number between 1 an 4\n");
             input_valid = false;
         }
     }
 
+    strcpy(stringToStoreTo, majors[userinput_int - 1]);
+
     return true;
 }
 
-void add_student()
+// Converts string to all lowercase.
+void convert_to_lowercase(char *str)
 {
-    FILE *tmpFile = fopen(TEMP, "w");
-    FILE *pFile = fopen(DB, "r");
+    for (int i = 0; str[i] != '\0'; i++)
+    {
+        str[i] = tolower(str[i]);
+    }
+}
 
+// TODO: Need to finish these later.
+bool final_DBentry_checks(struct Student *student)
+{
+    int errors_found = 0;
+    char errorcodes[defaultStringLenght];
+    
+    // checking for non alphanumerical characters.
+    for (int i = 0; i < strlen(student->firstname); i++)
+    {
+        if (isalnum(student->firstname[i]) == false)
+        {
+            errorcodes[errors_found] = '1'; // Non alphanumerical character found in firstname.
+            errors_found++;
+            break;
+        }
+    }
+
+    for (int i = 0; i < strlen(student->lastname); i++)
+    {
+        if (isalnum(student->lastname[i]) == false)
+        {
+            errorcodes[errors_found] = '2'; // Non alphanumerical character found in lastname.
+            errors_found++;
+            break;
+        }
+    }
+
+    // Checking len of strings.
+    if (strlen(student->firstname) > nameLenght - 1)
+    {
+        errorcodes[errors_found] = '3'; // Firstname too long.
+        errors_found++;
+    }
+    if (strlen(student->lastname) > nameLenght - 1)
+    {
+        errorcodes[errors_found] = '4'; // Lastname too long.
+        errors_found++;
+    }
+
+    
+}
+
+void add_new_student()
+{
     // Gathering new student information.
-    char firstname[nameLenght];
+    // Creating firstname.
+    struct Student newStudent;
     char inputstr[longStringLenght];
     sprintf(inputstr, "Enter firstname (max %d alphanumerical characters only!)\n", nameLenght - 1);
 
     char errorMsg[longStringLenght] = "Please enter a valid firstname.\n";
 
     printf("%s", separator);
-    fgets_string_whileloop_alphanumerical(inputstr, errorMsg, firstname, nameLenght);
-    if (Exit_to_cancel(firstname) == true)
+    fgets_string_whileloop_alphanumerical(inputstr, errorMsg, newStudent.firstname, nameLenght);
+    if (exit_to_cancel(newStudent.firstname) == true)
     {
         printf("Cancelling...\n");
         return;
     }
 
-    char lastname[nameLenght];
+    // Creating lastname.
     sprintf(inputstr, "Enter lastname (max %d alphanumerical characters only!)\n", nameLenght - 1);
 
     char errorMsg2[longStringLenght] = "Please enter a valid lastname.\n";
 
     printf("%s", separator);
-    fgets_string_whileloop_alphanumerical(inputstr, errorMsg2, lastname, nameLenght);
-    if (Exit_to_cancel(lastname) == true)
+    fgets_string_whileloop_alphanumerical(inputstr, errorMsg2, newStudent.lastname, nameLenght);
+    if (exit_to_cancel(newStudent.lastname) == true)
     {
         printf("Cancelling...\n");
         return;
     }
 
+    // Creating studentid.
     // Student id == date (yyyy+mm) + student number (6 digits)
-    char studentid[studentidLenght];
-    create_studentid(studentid);
+    create_studentid(&newStudent);
 
-    printf("student record: %s %s %s\n", firstname, lastname, studentid);
+    // Choosing major.
+    printf("%s", separator);
+    choose_major(newStudent.major);
+
+    // Confirming student record.
+    printf("%s", separator);
+
+    printf("Student will be added with the following information\n"
+           "Firstname: %s\n"
+           "Lastname: %s\n"
+           "Studentid: %s\n"
+           "Major: %s\n",
+           newStudent.firstname, newStudent.lastname, newStudent.studentid, newStudent.major);
+
+    char userinput[defaultStringLenght] = "\0";
+    printf("Is this correct? [yes/no]\n");
+    printf("Input: ");
+    improved_fgets(userinput, defaultStringLenght);
+    convert_to_lowercase(userinput);
+    while (stricmp(userinput, "yes") != 0 && stricmp(userinput, "no") != 0 && stricmp(userinput, "y") != 0 && stricmp(userinput, "n") != 0)
+    {
+        printf("Error: Please enter \"yes\" or \"no\".\n");
+        printf("Input: ");
+        improved_fgets(userinput, defaultStringLenght);
+        convert_to_lowercase(userinput);
+    }
+    if (stricmp(userinput, "no") == 0 || stricmp(userinput, "n") == 0)
+    {
+        printf("Cancelling...\n");
+        return;
+    }
+
+    // Adding student to DB and final suite of tests before adding student to DB.
+    printf("Adding student to DB.\n");
+    FILE *tmpFile = fopen(TEMP, "w");
+    FILE *pFile = fopen(DB, "r");
+
+    // Copying existing data to temp file.
+    int rowCount = 0;
+    char buffer[inputbufferlenght];
+    while (fgets(buffer, inputbufferlenght, pFile) != NULL)
+    {
+        rowCount++;
+        if (rowCount == 1)
+        {
+            fprintf(tmpFile, "%d %d\n", newStudent.studentind, newStudent.db_entry_row);
+        }
+        else
+        {
+            fprintf(tmpFile, "%s", buffer);
+        }
+    }
+
+    // Adding new entry to temp file.
+    fprintf(tmpFile, "%s %s %s %s\n", newStudent.firstname, newStudent.lastname, newStudent.studentid, newStudent.major);
+
+    fclose(pFile);
+    fclose(tmpFile);
+
+    // Updating database.
+    remove(DB);
+    rename(TEMP, DB);
+    printf("New student added to DB.\n");
 }
