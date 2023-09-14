@@ -45,6 +45,66 @@ void dtimeString(char *string_to_store_to);
 bool zeroToCancel(const char *inputStr);
 bool createStudentId(struct Student *student);
 void addNewStudent();
+int getIndNum(const char *buffer);
+void editStudentEntry();
+
+/*  Fetches student data from DB and returns it as a Struct.
+    Requires studentind to find correct data.*/
+Struct fetch_student_data(int studentind)
+{
+    Struct student;
+    int tokencount = 0, linecount = 0;
+    char *token, buffer[LONG_STRING_LENGHT];
+    FILE *dbFile = fopen(DB, "r");
+    bool entry_found = false;
+
+    while ((fgets(buffer, LONG_STRING_LENGHT, dbFile)) != NULL && entry_found == false)
+    {
+        linecount++;
+        if (getIndNum(buffer) == studentind)
+        {
+            token = strtok(buffer, ", ");
+            while (token != NULL)
+            {
+                switch (tokencount)
+                {
+                case 0:
+                    stringToIntConv(token, &student.studentind);
+                    break;
+                case 1:
+                    strncpy(student.firstname, token, sizeof(student.firstname) - 1);
+                    student.firstname[sizeof(student.firstname) - 1] = '\0';
+                    break;
+                case 2:
+                    strncpy(student.lastname, token, sizeof(student.lastname) - 1);
+                    student.lastname[sizeof(student.lastname) - 1] = '\0';
+                    break;
+                case 3:
+                    strncpy(student.studentid, token, sizeof(student.studentid) - 1);
+                    student.studentid[sizeof(student.studentid) - 1] = '\0';
+                    break;
+                case 4:
+                    strncpy(student.major, token, sizeof(student.major) - 1);
+                    student.major[sizeof(student.major) - 1] = '\0';
+                    break;
+                }
+
+                token = strtok(NULL, ", ");
+                tokencount++;
+            }
+            student.db_entry_row = linecount;
+            entry_found = true;
+        }
+    }
+
+    if (entry_found == false)
+    {
+        printf("Error: Student record with index %d not found.\n", studentind);
+    }
+
+    fclose(dbFile);
+    return student;
+}
 
 int main()
 {
@@ -78,7 +138,7 @@ int main()
             break;
         case 2:
             printf("case 2");
-            // Edit student function here
+            editStudentEntry();
             break;
         case 3:
             printf("case 3");
@@ -237,7 +297,7 @@ void fgetsStringWhileLoop(const char *stringToPrint, const char *retryMessage, c
     {
         printf("%s", stringToPrint);
         printf("Or input 'Exit' to cancel.\n"
-               "Your input: ");
+               "Input: ");
         input_valid = improvedFgets(stringToStoreTo, maxLenghtOfString);
         if (input_valid == false)
         {
@@ -323,13 +383,12 @@ bool exit_to_cancel(const char *inputStr)
 bool createStudentId(struct Student *student)
 {
     // Student id == date (yyyy+mm) + student number (6 digits)
-    student->studentid[0] = '\0';  // Clearing string, 'cause for some black voodoo magic this particular string loves to pickup random garbage from userinput, but only if that userinput gets rejected??!?!?!?!!
+    student->studentid[0] = '\0'; // Clearing string, 'cause for some black voodoo magic this particular string loves to pickup random garbage from userinput, but only if that userinput gets rejected??!?!?!?!!
     char date_string[DEFAULT_STRING_LENGHT] = "\0";
 
     // Fetching and adding datetime to studentid string.
     dtimeString(date_string);
     strcat(student->studentid, date_string);
-
 
     // Fetching/updating student index and DB rows.
 
@@ -546,3 +605,68 @@ void addNewStudent()
     printf("New student added to DB.\n");
 }
 
+// Gets the index number from DB entry.
+int getIndNum(const char *buffer)
+{
+    char index_number[DEFAULT_STRING_LENGHT];
+    int numberlength = 0;
+    for (int i = 0; i < strlen(buffer); i++)
+    {
+        if (buffer[i] == ',')
+        {
+            break;
+        }
+        index_number[numberlength] = buffer[i];
+        numberlength++;
+    }
+
+    return strtol(index_number, NULL, 10);
+}
+
+void editStudentEntry()
+{
+    // Asking for ind of student to edit.
+    char userinput[DEFAULT_STRING_LENGHT] = "\0";
+    int studentind = 0;
+
+    char promptMsg[LONG_STRING_LENGHT] = "\nEnter student index number (Leftmost column in DB).\n";
+    char errorMsg[LONG_STRING_LENGHT] = "Please enter a valid student index number.\n";
+
+    printf("%s", SEPARATOR);
+    do
+    {
+        fgetsStringWhileLoop(promptMsg, errorMsg, userinput, DEFAULT_STRING_LENGHT);
+        if (strcmp(userinput, "exit") == 0)
+        {
+            printf("Cancelling...\n");
+            return;
+        }
+    } while (stringToIntConv(userinput, &studentind) == false);
+
+    // Fetching current student data into struct.
+    struct Student student = fetch_student_data(studentind);
+
+    // Confirming what information to edit.
+    printf("%s", SEPARATOR);
+    char promptMsg2[LONG_STRING_LENGHT] = "\n1. Firstname\n2. Lastname\n3. major\n4. Exit\nChoose data to change.\n";
+    char errorMsg2[LONG_STRING_LENGHT] = "Enter a valid integer between range 1-4.\n";
+    int choice = 0;
+    bool input_valid = false;
+    while (input_valid == false)
+    {
+        fgetsStringWhileLoop(promptMsg2, errorMsg2, userinput, DEFAULT_STRING_LENGHT);
+        input_valid = stringToIntConv(userinput, &choice);
+        if (choice < 1 || choice > 4)
+        {
+            printf("Error: Enter a valid integer between range 1-4.\n");
+            input_valid = false;
+        }
+        if (strcmp(userinput, "exit") == 0)
+        {
+            printf("Cancelling...\n");
+            return;
+        }
+    }
+
+
+}
