@@ -5,67 +5,76 @@
 #include <errno.h>
 #include <ctype.h>
 
-bool stringToIntConv(const char *str, int *result);
-int getIndNum(const char *buffer);
+#define NAME_LENGHT 21
+#define INPUT_BUFFER_LENGHT 256
+#define LONG_STRING_LENGHT 256
+#define STUDENT_ID_LENGHT 13
+#define DEFAULT_STRING_LENGHT 21
+
+
+
+struct Student
+{
+    int studentind, db_entry_row;
+    char firstname[NAME_LENGHT];
+    char lastname[NAME_LENGHT];
+    char studentid[STUDENT_ID_LENGHT];
+    char major[DEFAULT_STRING_LENGHT];
+};
+typedef struct Student Struct;
 
 int main()
 {
-    char buffer[256] = "36, Avery, Phillips, 202307000036, PuppetArts";
-    int num = getIndNum(buffer);
-    printf("%d\n", num);
+    struct Student student;
+    student.studentind = 1;
+    student.db_entry_row = 2;
+    strcpy(student.firstname, "John");
+    strcpy(student.lastname, "Doe");
+    strcpy(student.studentid, "1234567890123");
+    strcpy(student.major, "Computer Science");
 
+    bool test = false;
+
+    while (test == false)
+    {
+        printf("Enter student firstname: ");
+        test = improvedFgets(student.firstname, NAME_LENGHT);
+    }
+    
     return 0;
 }
 
-
-int getIndNum(const char *buffer)
+bool improvedFgets(char *stringToStoreTo, const int maxLenghtOfString)
 {
-    char index_number[8];
-    int numberlength = 0;
-    for (int i = 0; i < strlen(buffer); i++)
+    bool newline_found = false;
+    int i = 0;
+
+    if (fgets(stringToStoreTo, INPUT_BUFFER_LENGHT, stdin) != NULL)
     {
-        if (buffer[i] == ',')
+
+        if (stringToStoreTo[0] == '\n' || stringToStoreTo[0] == '\0')
         {
-            break;
+            printf("Error: Empty input.\n");
+            stringToStoreTo[0] = '\0'; // Clearing string.
+            return false;
         }
-        index_number[numberlength] = buffer[i];
-        numberlength++;
-    }
-    
-    int converted_number = 0;
-    stringToIntConv(index_number, &converted_number);
 
-    return converted_number;
-}
-
-bool stringToIntConv(const char *str, int *result)
-{
-    char *endptr;
-    errno = 0;
-    long int num = strtol(str, &endptr, 10);
-
-    if (errno == ERANGE)
-    {
-        printf("Error: could not complete conversion to integer, number out of range.\n"
-               "Enter a number between %d and %d.\n",
-               LONG_MIN, LONG_MAX);
-        return false;
-    }
-    else if (*endptr != '\0')
-    {
-
-        for (char *p = endptr; *p != '\0'; p++)
+        while (newline_found == false)
         {
-            if (!isdigit((unsigned char)*p))
+            if (stringToStoreTo[i] == '\n')
             {
-                printf("Error: could not complete conversion to integer, you entered a non integer.\n");
+                newline_found = true;
+                stringToStoreTo[i] = '\0';
+            }
+            if (i >= maxLenghtOfString - 1)
+            {
+                printf("\nError: Input over max accepted lenght of %d characters.\n", maxLenghtOfString - 1);
+                stringToStoreTo[0] = '\0'; // Clearing string.
                 return false;
             }
+            i++;
         }
-        printf("Error: could not read an integer.\n");
-        return false;
     }
 
-    *result = num;
     return true;
 }
