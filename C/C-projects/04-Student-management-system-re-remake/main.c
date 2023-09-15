@@ -30,6 +30,7 @@ struct Student
     char lastname[INPUT_BUFFER_LENGHT];
     char studentid[INPUT_BUFFER_LENGHT];
     char major[LONG_STRING_LENGHT];
+    int fetchFailure;
 };
 
 typedef struct Student Struct;
@@ -48,6 +49,8 @@ void addNewStudent();
 int getIndNum(const char *buffer);
 void editStudentEntry();
 void addNewEntryToDB(struct Student studentStruct);
+FILE *openFileWithRetry(const char *fileName, const char *mode, int maxRetries);
+void deleteStudentEntry();
 
 /*  Fetches student data from DB and returns it as a Struct.
     Requires studentind to find correct data.*/
@@ -56,8 +59,19 @@ Struct fetch_student_data(int studentind)
     Struct student;
     int tokencount = 0, linecount = 0;
     char *token, buffer[LONG_STRING_LENGHT] = "\0";
-    FILE *dbFile = fopen("C:\\Users\\Mage\\source\\repos\\MagnusLii\\C_testing\\C\\C-projects\\04-Student-management-system-re-remake\\db.txt", "r"); // For some retarded reason this special snowflake fopen()
-                                                                                                                                                      // Needs the entire fucking path to open the file...
+
+    // For some stupid reason this special snowflake fopen()
+    // Needs the entire goddamned path to open the file...
+    FILE *dbFile = openFileWithRetry("C:\\Users\\Mage\\source\\repos\\MagnusLii\\C_testing\\C\\C-projects\\04-Student-management-system-re-remake\\db.txt", "r", 3);
+    if (dbFile == NULL)
+    {
+        printf("Unable to open file %s", DB);
+        printf("Cancelling...");
+        student.fetchFailure = 1;
+        return student;
+    }
+    
+
     bool entry_found = false;
 
     while ((fgets(buffer, LONG_STRING_LENGHT, dbFile)) != NULL && entry_found == false)
@@ -146,7 +160,7 @@ int main()
             break;
         case 3:
             printf("case 3");
-            // Delete student function here
+            deleteStudentEntry();
             break;
         case 4:
             printf("case 4");
@@ -165,12 +179,11 @@ int main()
     return 0;
 }
 
-
 /*  Gets the current index for students and number of entries (rows) in DB.
     Returns false if unable to open DB file or read correct string.*/
 bool getDBRowInd(int *pStudentind, int *pDB_rows)
 {
-    FILE *pFile = fopen(DB, "r");
+    FILE *pFile = openFileWithRetry(DB, "r", 3);
     if (pFile == NULL)
     {
         printf("Error: Unable to open the file '%s'\n", DB);
@@ -501,8 +514,19 @@ bool final_DBentry_checks(struct Student *student)
 
 void addNewEntryToDB(struct Student studentStruct)
 {
-    FILE *tmpFile = fopen(TEMP, "w");
-    FILE *pFile = fopen(DB, "r");
+    FILE *tmpFile = openFileWithRetry(TEMP, "w", 3);
+    if (tmpFile == NULL)
+    {
+        printf("Error: Unable to open the file '%s'\n", TEMP);
+        return;
+    }
+    
+    FILE *pFile = openFileWithRetry(DB, "r", 3);
+    if (pFile == NULL)
+    {
+        printf("Error: Unable to open the file '%s'\n", DB);
+        return;
+    }
 
     // Copying existing data to temp file.
     int rowCount = 0;
@@ -537,8 +561,19 @@ void addNewEntryToDB(struct Student studentStruct)
     Returns True/False is entry is found/not found. */
 bool modifyEntryToDB(struct Student studentStruct)
 {
-    FILE *tmpFile = fopen(TEMP, "w");
-    FILE *pFile = fopen(DB, "r");
+    FILE *tmpFile = openFileWithRetry(TEMP, "w", 3);
+    if (tmpFile == NULL)
+    {
+        printf("Error: Unable to open the file '%s'\n", TEMP);
+        return false;
+    }
+    
+    FILE *pFile = openFileWithRetry(DB, "r", 3);
+    if (pFile == NULL)
+    {
+        printf("Error: Unable to open the file '%s'\n", DB);
+        return false;
+    }
 
     // Copying existing data to temp file and replacing entry with new data.
     int rowCount = 0;
@@ -684,6 +719,13 @@ void editStudentEntry()
 
     // Fetching current student data into struct.
     struct Student student = fetch_student_data(studentind);
+    if (student.fetchFailure == 1)
+    {
+        printf("Failed to read DB.\n"
+               "Cancelling...\n");
+        return;
+    }
+    
 
     // Confirming what information to edit.
     printf("%s", SEPARATOR);
@@ -775,7 +817,7 @@ void editStudentEntry()
            "Studentid: %s\n"
            "Major: %s\n",
            student.firstname, student.lastname, student.studentid, student.major);
-    char userinput[INPUT_BUFFER_LENGHT] = "\0";
+    userinput[0] = '\0';
     printf("Is this correct? [yes/no]\n");
     printf("Input: ");
     improvedFgets(userinput, DEFAULT_STRING_LENGHT);
@@ -804,4 +846,112 @@ void editStudentEntry()
     printf("Student entry modified.\n");
 
     return;
+}
+
+void deleteStudentEntry()
+{
+    // Gathering information on entry to remove.
+
+    printf("%s", SEPARATOR);
+    char userinput[INPUT_BUFFER_LENGHT] = "\0";
+    bool entry_found = false;
+    int studentind = 0;
+    while (entry_found == false)
+    {
+        fgetsStringWhileLoopAlphanumerical("Enter index number of student entry to remove. (Leftmost column in DB).\n",
+                                           "Please enter a valid student index number.\n", userinput, DEFAULT_STRING_LENGHT);
+        if (exit_to_cancel(userinput) == true)
+        {
+            printf("Cancelling...\n");
+            return;
+        }
+
+        entry_found = stringToIntConv(userinput, &studentind);
+    }
+
+    struct Student student = fetch_student_data(studentind); // student.db_entry_row is used to locate entry in DB.
+    if (student.fetchFailure == 1)
+    {
+        printf("Failed to read DB.\n"
+               "Cancelling...\n");
+        return;
+    }
+
+    FILE *pFile = openFileWithRetry(DB, "r", 3);
+    if (pFile == NULL)
+    {
+        printf("Error: Unable to open the file '%s'\n", DB);
+        return;
+    }
+
+    FILE *tmpFile = openFileWithRetry(TEMP, "w", 3);
+    if (tmpFile == NULL)
+    {
+        printf("Error: Unable to open the file '%s'\n", TEMP);
+        return;
+    }
+
+    // Copying existing data to temp file without copying entry to remove and updating  DB row count.
+    int current_index = 0, db_rows = 0;
+    fscanf(pFile, "%d %d", &current_index, &db_rows);
+    fprintf(tmpFile, "%d %d", current_index, db_rows - 1);
+
+    entry_found = false;
+    char buffer[LONG_STRING_LENGHT] = "\0";
+    while (fgets(buffer, LONG_STRING_LENGHT, pFile) != NULL)
+    {
+        if (getIndNum(buffer) != studentind)
+        {
+            fprintf(tmpFile, "%s", buffer);
+        }
+        if (getIndNum(buffer) == studentind)
+        {
+            entry_found = true;
+        }
+        
+    }
+
+    if (entry_found == false)
+    {
+        printf("Error: Student record with index %d not found.\n", studentind);
+        printf("Cancelling...\n");
+
+        fclose(pFile);
+        fclose(tmpFile);
+        remove(TEMP);
+        return;
+    }
+
+    fclose(pFile);
+    fclose(tmpFile);
+
+    // Updating database.
+    remove(DB);
+    rename(TEMP, DB);
+    printf("Student entry removed.\n");
+
+    return;
+}
+
+/*  Attempts to open specified file.
+    Returns NULL incase of failure
+    returns pointer to file otherwise.  */
+FILE *openFileWithRetry(const char *fileName, const char *mode, int maxRetries)
+{
+    FILE *file = NULL;
+    int retryCount = 0;
+
+    while (retryCount < maxRetries)
+    {
+        file = fopen(fileName, mode);
+        if (file != NULL)
+        {
+            return file;
+        }
+
+        retryCount++;
+    }
+
+    printf("Error: Unable to open the file \"%s\".\n", fileName);
+    return NULL;
 }
