@@ -66,7 +66,7 @@ Struct fetch_student_data(int studentind)
 
     // For some stupid reason this special snowflake fopen()
     // Needs the entire goddamned path to open the file...
-    FILE *dbFile = openFileWithRetry("C:\\Users\\Mage\\source\\repos\\MagnusLii\\C_testing\\C\\C-projects\\04-Student-management-system-re-remake\\db.txt", "r", 3);
+    FILE *dbFile = openFileWithRetry(DB, "r", 3);
     if (dbFile == NULL)
     {
         printf("Unable to open file %s", DB);
@@ -662,13 +662,13 @@ void addNewStudent()
     improvedFgets(userinput, DEFAULT_STRING_LENGHT);
     convertToLowercase(userinput);
 
-    do
+    while ((stringIsYesOrNo(userinput) == false))
     {
         printf("Error: Please enter \"yes\" or \"no\".\n");
         printf("Input: ");
         improvedFgets(userinput, DEFAULT_STRING_LENGHT);
         convertToLowercase(userinput);
-    } while ((stringIsYesOrNo(userinput) == false));
+    }
 
     if (stricmp(userinput, "no") == 0 || stricmp(userinput, "n") == 0)
     {
@@ -766,6 +766,12 @@ void editStudentEntry()
             return;
         }
         break;
+
+        for (int i = 0; i < strlen(userinput); i++)
+        {
+            student.firstname[i] = userinput[i];
+        }
+
         // Changing lastname.
     case 2:
         sprintf(inputstr, "Enter lastname (max %d alphanumerical characters only!)\n", NAME_LENGHT - 1);
@@ -776,6 +782,12 @@ void editStudentEntry()
             return;
         }
         break;
+
+        for (int i = 0; i < strlen(userinput); i++)
+        {
+            student.lastname[i] = userinput[i];
+        }
+
         // Swapping major.
     case 3:
         char majors[NUM_MAJORS][LONG_STRING_LENGHT] = MAJORS;
