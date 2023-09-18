@@ -52,6 +52,9 @@ void addNewEntryToDB(struct Student studentStruct);
 FILE *openFileWithRetry(const char *fileName, const char *mode, int maxRetries);
 void deleteStudentEntry();
 void lookupOrBrowse();
+bool stringIsYesOrNo(const char *str);
+void browseStudentList();
+void lookupStudent();
 
 /*  Fetches student data from DB and returns it as a Struct.
     Requires studentind to find correct data.*/
@@ -165,7 +168,7 @@ int main()
             lookupOrBrowse();
             break;
         case 5:
-            printf("case 5");
+            printf("Terminating program...\n");
             exit = true;
             break;
         default:
@@ -658,13 +661,15 @@ void addNewStudent()
     printf("Input: ");
     improvedFgets(userinput, DEFAULT_STRING_LENGHT);
     convertToLowercase(userinput);
-    while (stricmp(userinput, "yes") != 0 || stricmp(userinput, "no") != 0 || stricmp(userinput, "y") != 0 || stricmp(userinput, "n") != 0)
+
+    do
     {
         printf("Error: Please enter \"yes\" or \"no\".\n");
         printf("Input: ");
         improvedFgets(userinput, DEFAULT_STRING_LENGHT);
         convertToLowercase(userinput);
-    }
+    } while ((stringIsYesOrNo(userinput) == false));
+
     if (stricmp(userinput, "no") == 0 || stricmp(userinput, "n") == 0)
     {
         printf("Cancelling...\n");
@@ -819,32 +824,33 @@ void editStudentEntry()
     printf("Input: ");
     improvedFgets(userinput, DEFAULT_STRING_LENGHT);
     convertToLowercase(userinput);
-    while (stricmp(userinput, "yes") != 0 && stricmp(userinput, "no") != 0 && stricmp(userinput, "y") != 0 && stricmp(userinput, "n") != 0)
+    while (stringIsYesOrNo(userinput) == false)
     {
-        printf("Error: Please enter \"yes\" or \"no\".\n");
-        printf("Input: ");
-        improvedFgets(userinput, DEFAULT_STRING_LENGHT);
-        convertToLowercase(userinput);
-    }
-    if (stricmp(userinput, "no") == 0 || stricmp(userinput, "n") == 0)
-    {
-        printf("Cancelling...\n");
+        {
+            printf("Error: Please enter \"yes\" or \"no\".\n");
+            printf("Input: ");
+            improvedFgets(userinput, DEFAULT_STRING_LENGHT);
+            convertToLowercase(userinput);
+        }
+        if (stricmp(userinput, "no") == 0 || stricmp(userinput, "n") == 0)
+        {
+            printf("Cancelling...\n");
+            return;
+        }
+
+        // Modifying student entry in DB.
+        printf("Modifying student entry in DB...\n");
+        if (modifyEntryToDB(student) == false)
+        {
+            printf("Error: Failed to modify entry with studentind \"%d\".\n", studentind);
+            printf("Exiting...\n");
+            return;
+        }
+        printf("Student entry modified.\n");
+
         return;
     }
-
-    // Modifying student entry in DB.
-    printf("Modifying student entry in DB...\n");
-    if (modifyEntryToDB(student) == false)
-    {
-        printf("Error: Failed to modify entry with studentind \"%d\".\n", studentind);
-        printf("Exiting...\n");
-        return;
-    }
-    printf("Student entry modified.\n");
-
-    return;
 }
-
 void deleteStudentEntry()
 {
     // Gathering information on entry to remove.
@@ -1047,7 +1053,7 @@ void browseStudentList()
         printf("Continue? [yes/no]\nInput: ");
         improvedFgets(userinput, DEFAULT_STRING_LENGHT);
         convertToLowercase(userinput);
-        while (stricmp(userinput, "yes") != 0 || stricmp(userinput, "no") != 0 || stricmp(userinput, "y") != 0 || stricmp(userinput, "n") != 0)
+        while (stringIsYesOrNo(userinput) == false)
         {
             printf("Error: Please enter \"yes\" or \"no\".\nInput: ");
             improvedFgets(userinput, DEFAULT_STRING_LENGHT);
@@ -1098,4 +1104,17 @@ void lookupStudent()
            student.firstname, student.lastname, student.studentid, student.major);
 
     return;
+}
+
+// Tests if string is "yes" or "no" or "y" or .
+bool stringIsYesOrNo(const char *str)
+{
+    if (stricmp(str, "yes") == 0 || stricmp(str, "no") == 0 || stricmp(str, "y") == 0 || stricmp(str, "n") == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
