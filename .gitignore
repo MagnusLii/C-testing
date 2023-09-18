@@ -22,3 +22,4 @@ C\#/ConsoleApp1/.vs/ConsoleApp1/v17/.suo
 C/C-projects/02-Student-management-system/joke.c
 .vscode/settings.json
 .vscode/tasks.json
+*.tmp
