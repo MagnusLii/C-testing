@@ -562,6 +562,7 @@ void addNewEntryToDB(struct Student studentStruct)
     Returns True/False is entry is found/not found. */
 bool modifyEntryToDB(struct Student studentStruct)
 {
+    printf("modifying data.\n");
     FILE *tmpFile = openFileWithRetry(TEMP, "w", 3);
     if (tmpFile == NULL)
     {
@@ -849,19 +850,19 @@ void editStudentEntry()
             printf("Cancelling...\n");
             return;
         }
+    }
 
-        // Modifying student entry in DB.
-        printf("Modifying student entry in DB...\n");
-        if (modifyEntryToDB(student) == false)
-        {
-            printf("Error: Failed to modify entry with studentind \"%d\".\n", studentind);
-            printf("Exiting...\n");
-            return;
-        }
-        printf("Student entry modified.\n");
-
+    // Modifying student entry in DB.
+    printf("Modifying student entry in DB...\n");
+    if (modifyEntryToDB(student) == false)
+    {
+        printf("Error: Failed to modify entry with studentind \"%d\".\n", studentind);
+        printf("Exiting...\n");
         return;
     }
+    printf("Student entry modified.\n");
+
+    return;
 }
 void deleteStudentEntry()
 {
