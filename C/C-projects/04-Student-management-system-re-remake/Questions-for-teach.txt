@@ -1,0 +1,9 @@
+bool final_DBentry_checks(struct Student *student) contains break, is it fine?
+
+Why does userinput endup stored in random arrays when I use my max string len limit?
+
+Is there a way to select a line in console and read that line into input?
+
+Why does the special snowflake file need the entire path????
+
+Should I move struct into it's own header?
