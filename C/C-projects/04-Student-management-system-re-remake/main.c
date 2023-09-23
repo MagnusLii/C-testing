@@ -1091,6 +1091,7 @@ void lookupStudent()
     int studentind = 0;
     bool input_valid = false;
 
+    // Asking for student index number.
     printf("%s", SEPARATOR);
     while (input_valid == false)
     {
@@ -1105,7 +1106,10 @@ void lookupStudent()
         input_valid = stringToIntConv(userinput, &studentind);
     }
 
+    // Fetching student data.
     struct Student student = fetch_student_data(studentind);
+
+    // Checking if fetch was successful.
     if (student.fetchFailure == 1)
     {
         printf("Failed to read DB.\n"
@@ -1136,3 +1140,4 @@ bool stringIsYesOrNo(const char *str)
         return false;
     }
 }
+
