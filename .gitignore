@@ -22,3 +22,8 @@ C/C-projects/02-Student-management-system/joke.c
 .vscode/tasks.json
 *.tmp
 C\#/ConsoleApp1/*
+cmake-build-debug/CMakeFiles/TargetDirectories.txt
+cmake-build-debug/CMakeCache.txt
+cmake-build-debug/CMakeFiles/clion-environment.txt
+cmake-build-debug/CMakeFiles/clion-Debug-log.txt
+CMakeLists.txt
