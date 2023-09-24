@@ -43,6 +43,60 @@ bool stringIsYesOrNo(const char *str);
 void browseStudentList();
 void lookupStudent();
 
+int main()
+{
+    int switch_choice = 0;
+    char choice_str[INPUT_BUFFER_LENGHT] = "\0";
+
+    bool exit = false;
+
+    while (exit == false)
+    {
+
+        while (switch_choice < 1 || switch_choice > 5)
+        {
+            switch_choice = 0;
+            printf("%s"
+                   "Student record management system\n\n"
+                   "Menu:\n"
+                   "1. Add new student\n"
+                   "2. Edit student\n"
+                   "3. Delete student\n"
+                   "4. Search student\n"
+                   "5. Exit\n"
+                   "Enter your choice: ",
+                   SEPARATOR);
+            improvedFgets(choice_str, DEFAULT_STRING_LENGHT);
+            stringToIntConv(choice_str, &switch_choice);
+        }
+
+        switch (switch_choice)
+        {
+        case 1:
+            addNewStudent();
+            break;
+        case 2:
+            editStudentEntry();
+            break;
+        case 3:
+            deleteStudentEntry();
+            break;
+        case 4:
+            lookupOrBrowse();
+            break;
+        case 5:
+            printf("Terminating program...\n");
+            exit = true;
+            break;
+        default:
+            printf("How'd you get in here?\nThis is probably an endless loop.\n");
+            break;
+        }
+    }
+
+    return 0;
+}
+
 /*  Gets the current index for students and number of entries (rows) in DB.
     Returns false if unable to open DB file or read correct string.*/
 bool getDBRowInd(int *pStudentind, int *pDB_rows)
@@ -1016,6 +1070,70 @@ Student fetch_student_data(const int studentind)
         printf("Error: Student record with index %d not found.\n", studentind);
     }
 
+    fclose(dbFile);
+    return student;
+}
+
+/*  Fetches student data from DB and returns it as a Struct.
+    Requires studentind to find correct data.*/
+Student fetch_student_data(const int studentind)
+{
+    Student student = {0};
+    int tokencount = 0, linecount = 0;
+    char *token, buffer[LONG_STRING_LENGHT] = "\0";
+    FILE *dbFile = openFileWithRetry(DB, "r", 3);
+    if (dbFile == NULL)
+    {
+        printf("Unable to open file %s", DB);
+        printf("Cancelling...");
+        student.fetchFailure = 1; // Incase of failure.
+        return student;
+    }
+
+    bool entry_found = false;
+    while ((fgets(buffer, LONG_STRING_LENGHT, dbFile)) != NULL && entry_found == false)
+    {
+        linecount++;
+        if (getIndNum(buffer) == studentind)
+        {
+            token = strtok(buffer, ", ");
+            while (token != NULL)
+            {
+                switch (tokencount)
+                {
+                case 0:
+                    stringToIntConv(token, &student.studentind);
+                    break;
+                case 1:
+                    strncpy(student.firstname, token, sizeof(student.firstname) - 1);
+                    student.firstname[sizeof(student.firstname) - 1] = '\0';
+                    break;
+                case 2:
+                    strncpy(student.lastname, token, sizeof(student.lastname) - 1);
+                    student.lastname[sizeof(student.lastname) - 1] = '\0';
+                    break;
+                case 3:
+                    strncpy(student.studentid, token, sizeof(student.studentid) - 1);
+                    student.studentid[sizeof(student.studentid) - 1] = '\0';
+                    break;
+                case 4:
+                    strncpy(student.major, token, sizeof(student.major) - 1);
+                    student.major[sizeof(student.major) - 1] = '\0';
+                    break;
+                }
+
+                token = strtok(NULL, ", ");
+                tokencount++;
+            }
+            student.db_entry_row = linecount;
+            entry_found = true;
+        }
+    }
+    
+    if (entry_found == false)
+    {
+        printf("Error: Student record with index %d not found.\n", studentind);
+    }
     fclose(dbFile);
     return student;
 }
