@@ -1,6 +1,6 @@
 51 49
 Studentind, Firstname, Lastname, Studentid, Major
-1, asd, dsa, 202307000001, Biomimicry
+1, test, dsa, 202307000001, Biomimicry
 2, pepe, powers, 202307000002, BicycleDesign
 4, kevin, mcalistar, 202307000004, PuppetArts
 5, John, Smith, 202307000005, Biomimicry

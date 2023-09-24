@@ -5,31 +5,26 @@
 #include <errno.h>
 #include <ctype.h>
 
-
-
 int main()
 {
+    char str[100] = "Hello World";
 
+    sprintf(str, "%s", "test test");
 
+    printf("%s\n", str);
     return 0;
 }
 
-FILE *openFileWithRetry(const char *fileName, const char *mode, int maxRetries)
+void changeStudentAttribute(char *inputstr, char *attribute, int maxLength)
 {
-    FILE *file = NULL;
-    int retryCount = 0;
-
-    while (retryCount < maxRetries)
+    sprintf(inputstr, "Enter firstname (max %d alphanumerical characters only!)\n", NAME_LENGHT - 1);
+    fgetsStringWhileLoopAlphanumerical(inputstr, "Please enter a valid firstname.\n", userinput, NAME_LENGHT);
+    if (exit_to_cancel(userinput) == true)
     {
-        file = fopen(fileName, mode);
-        if (file != NULL)
-        {
-            return file;
-        }
-
-        retryCount++;
+        return;
     }
-
-    printf("Error: Unable to open the file \"%s\".\n", fileName);
-    return NULL;
+    for (int i = 0; i < strlen(userinput); i++)
+    {
+        student.attribute[i] = userinput[i];
+    }
 }
