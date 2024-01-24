@@ -27,3 +27,4 @@ cmake-build-debug/CMakeCache.txt
 cmake-build-debug/CMakeFiles/clion-environment.txt
 cmake-build-debug/CMakeFiles/clion-Debug-log.txt
 CMakeLists.txt
+.vscode
