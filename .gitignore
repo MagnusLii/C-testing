@@ -29,3 +29,4 @@ cmake-build-debug/CMakeFiles/clion-Debug-log.txt
 CMakeLists.txt
 .vscode
 .idea/workspace.xml
+test.cpp
