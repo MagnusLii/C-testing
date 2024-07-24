@@ -1,0 +1,4 @@
+Absolutepath: "F:\\Projects\\C_testing\\C++\\OOP-cpp\\Lab02""asd\\dsa\\result.txt"
+0: asd
+1: dsa
+Relativepath: "asd\\dsa\\result.txt"
